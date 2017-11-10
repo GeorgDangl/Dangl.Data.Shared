@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dangl.Data.Shared", "src\Da
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CD44DB1-702E-44C3-A736-6CAC33F33F85}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FB569289-C210-4FB7-831D-28A64BCBAB20}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dangl.Data.Shared.Tests", "test\Dangl.Data.Shared.Tests\Dangl.Data.Shared.Tests.csproj", "{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +21,17 @@ Global
 		{446ED6D9-965A-49E4-9697-34CCBD337942}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{446ED6D9-965A-49E4-9697-34CCBD337942}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{446ED6D9-965A-49E4-9697-34CCBD337942}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{446ED6D9-965A-49E4-9697-34CCBD337942} = {3CD44DB1-702E-44C3-A736-6CAC33F33F85}
+		{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D} = {FB569289-C210-4FB7-831D-28A64BCBAB20}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EAC9929F-8B47-4582-BE55-6466089FCDE8}
