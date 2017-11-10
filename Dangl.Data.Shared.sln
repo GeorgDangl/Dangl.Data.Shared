@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dangl.Data.Shared", "Dangl.Data.Shared\Dangl.Data.Shared.csproj", "{446ED6D9-965A-49E4-9697-34CCBD337942}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dangl.Data.Shared", "src\Dangl.Data.Shared\Dangl.Data.Shared.csproj", "{446ED6D9-965A-49E4-9697-34CCBD337942}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CD44DB1-702E-44C3-A736-6CAC33F33F85}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,6 +20,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{446ED6D9-965A-49E4-9697-34CCBD337942} = {3CD44DB1-702E-44C3-A736-6CAC33F33F85}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EAC9929F-8B47-4582-BE55-6466089FCDE8}
