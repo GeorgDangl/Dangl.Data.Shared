@@ -29,8 +29,6 @@ Add-Type -AssemblyName "System.IO.Compression.FileSystem"
 $nuGetPackageName = (Get-ChildItem -Path "$PSScriptRoot/src/$projectName/bin/Release" -Filter "$projectName.*.nupkg").Name
 $packageVersion = $nuGetPackageName.Replace("$projectName.", "").Replace(".nupkg", "")
 
-exit
-
 # Uploading documentation to WebDocu
 # TODO
 $curlArguments = @(("-F ""ApiKey=" + $documentationApiKey + """"),`
