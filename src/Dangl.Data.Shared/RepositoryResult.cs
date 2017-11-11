@@ -1,4 +1,6 @@
-﻿namespace Dangl.Data.Shared
+﻿using System;
+
+namespace Dangl.Data.Shared
 {
     /// <summary>
     /// A <see cref="RepositoryResult"/> returns data from the Repository layer
@@ -15,7 +17,7 @@
         /// <summary>
         /// The result of the operation
         /// </summary>
-        public T Result { get; private set; }
+        public T Value { get; private set; }
 
         /// <summary>
         /// Null if no error occurred
@@ -35,6 +37,19 @@
                 ErrorMessage = errorMessage
             };
         }
+        
+        /// <summary>
+        /// Creates an unsuccessfull result with an unknown error
+        /// </summary>
+        /// <returns></returns>
+        public static RepositoryResult<T> Fail()
+        {
+            return new RepositoryResult<T>
+            {
+                IsSuccess = false,
+                ErrorMessage = "Unknown Error"
+            };
+        }
 
         /// <summary>
         /// Creates a successfull result
@@ -43,10 +58,14 @@
         /// <returns></returns>
         public static RepositoryResult<T> Success(T value)
         {
+            if (value == null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
             return new RepositoryResult<T>
             {
                 IsSuccess = true,
-                Result = value
+                Value = value
             };
         }
     }
@@ -79,6 +98,19 @@
             {
                 IsSuccess = false,
                 ErrorMessage = errorMessage
+            };
+        }
+
+        /// <summary>
+        /// Creates an unsuccessfull result with an unknown error
+        /// </summary>
+        /// <returns></returns>
+        public static RepositoryResult Fail()
+        {
+            return new RepositoryResult
+            {
+                IsSuccess = false,
+                ErrorMessage = "Unknown Error"
             };
         }
 
