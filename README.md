@@ -8,4 +8,3 @@ The aim of this solution is to consolidate simple, reused code such as `ApiError
 
 Links to docs:
   * [Dangl.Data.Shared](https://docs.dangl-it.com/Projects/Dangl.Data.Shared)
-  * [Dangl.Data.Shared.AspNetCore](https://docs.dangl-it.com/Projects/Dangl.Data.Shared.AspNetCore)
