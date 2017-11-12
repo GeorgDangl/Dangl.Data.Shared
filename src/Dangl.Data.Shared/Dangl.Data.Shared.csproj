@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
     <VersionPrefix>1.0.1</VersionPrefix>
-    <Description>Commonly used code for Asp.Net Core & Web projects</Description>
+    <Description>Commonly used code for Asp.Net Core &amp; Web projects</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
     <Copyright>(c) 2017 Georg Dangl</Copyright>
