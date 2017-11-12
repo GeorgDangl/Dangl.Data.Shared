@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <VersionPrefix>1.0.1</VersionPrefix>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
     <Copyright>(c) 2017 Georg Dangl</Copyright>
