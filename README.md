@@ -6,5 +6,5 @@ Tests are run with `./Tests.ps1`, code coverage with `./TestsAndCoverage`, both 
 
 The aim of this solution is to consolidate simple, reused code such as `ApiError` or `RepositoryResult<T>`.
 
-Links to docs:
+Link to docs:
   * [Dangl.Data.Shared](https://docs.dangl-it.com/Projects/Dangl.Data.Shared)
