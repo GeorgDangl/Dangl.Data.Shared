@@ -19,3 +19,7 @@ To use the filter, it must be configured in the `AddMvd()` call in `ConfigureSer
         {
             options.Filters.Add(typeof(ModelStateValidationFilter));
         })
+
+## BiggerThanZeroAttribute
+
+The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to `int` properties to ensure their values are greater than zero.
