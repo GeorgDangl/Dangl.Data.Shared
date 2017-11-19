@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 
-namespace Dangl.Data.Shared.AspNetCore.Validation
+namespace Dangl.Data.Shared.Validation
 {
     /// <summary>
     /// This is a <see cref="ValidationAttribute"/> that can only be applied to integer properties and ensures they have a value bigger than zero.

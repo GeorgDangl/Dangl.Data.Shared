@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using Dangl.Data.Shared.AspNetCore.Validation;
+using Dangl.Data.Shared.Validation;
 using Xunit;
 
 namespace Dangl.Data.Shared.AspNetCore.Tests.Validation
