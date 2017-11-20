@@ -4,7 +4,7 @@ using System.Linq;
 using Dangl.Data.Shared.Validation;
 using Xunit;
 
-namespace Dangl.Data.Shared.AspNetCore.Tests.Validation
+namespace Dangl.Data.Shared.Tests.Validation
 {
     public class BiggerThanZeroAttributeTests
     {
@@ -53,7 +53,6 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Validation
         [Fact]
         public void ReturnsOkWhenPropertyIsPositiveInteger()
         {
-
             var objectToValidate = new ClassWithIntegerAttribute { Property = 2 };
             var validationContext = new ValidationContext(objectToValidate)
             {

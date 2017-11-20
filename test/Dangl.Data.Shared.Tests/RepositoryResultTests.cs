@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Xunit;
 
 namespace Dangl.Data.Shared.Tests
