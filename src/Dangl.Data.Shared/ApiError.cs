@@ -9,6 +9,11 @@ namespace Dangl.Data.Shared
     public class ApiError
     {
         /// <summary>
+        /// This parameterless constructor does not set up any errors.
+        /// </summary>
+        public ApiError() { }
+
+        /// <summary>
         /// Outputs an error in the form of { "Message": "Error" }
         /// </summary>
         /// <param name="message"></param>
@@ -68,6 +73,6 @@ namespace Dangl.Data.Shared
         /// <summary>
         /// This dictionary contains a set of all errors and their messages
         /// </summary>
-        public IDictionary<string, string[]> Errors { get; protected set; }
+        public IDictionary<string, string[]> Errors { get; set; }
     }
 }
