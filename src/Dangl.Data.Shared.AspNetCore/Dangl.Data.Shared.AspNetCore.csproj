@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Commonly used code for Asp.Net Core projects</Description>
     <Authors>Georg Dangl</Authors>
-    <Copyright>(c) 2017 Georg Dangl</Copyright>
+    <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
     <PackageProjectUrl>https://github.com/GeorgDangl/Dangl.Data.Shared</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeorgDangl/Dangl.Data.Shared.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
