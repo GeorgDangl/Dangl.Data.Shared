@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Commonly used code for Asp.Net Core projects</Description>
     <Authors>Georg Dangl</Authors>
