@@ -8,3 +8,18 @@ The aim of this solution is to consolidate simple, reused code such as `ApiError
 
 Link to docs:
   * [Dangl.Data.Shared](https://docs.dangl-it.com/Projects/Dangl.Data.Shared)
+
+## ModelStateValidationFilter
+The `ModelStateValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the passed `ModelState`
+of an action is invalid. This allows to keep controlls free of basic model state validation logic.
+
+To use the filter, it must be configured in the `AddMvd()` call in `ConfigureServices`:
+
+    services.AddMvc(options =>
+        {
+            options.Filters.Add(typeof(ModelStateValidationFilter));
+        })
+
+## BiggerThanZeroAttribute
+
+The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to `int` properties to ensure their values are greater than zero.

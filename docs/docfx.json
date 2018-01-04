@@ -47,7 +47,7 @@
       "_appLogoPath":"app-logo.png",
       "_appFaviconPath":"app-logo.png",
       "_enableSearch":true,
-      "_disableContribution":true
+      "_gitUrlPattern": "github"
     },
     "dest":"../generated_docs"
   }

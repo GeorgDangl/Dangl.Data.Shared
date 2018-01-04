@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
-    <VersionPrefix>1.0.0</VersionPrefix>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <VersionPrefix>1.0.1</VersionPrefix>
+    <Description>Commonly used code for Asp.Net Core &amp; Web projects</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
     <Copyright>(c) 2017 Georg Dangl</Copyright>
@@ -13,5 +14,9 @@
     <VersionSuffix Condition=" '$(GIT_BRANCH)' == 'origin/develop'">build-$(BUILD_NUMBER)</VersionSuffix>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.4.0" />
+  </ItemGroup>
 
 </Project>

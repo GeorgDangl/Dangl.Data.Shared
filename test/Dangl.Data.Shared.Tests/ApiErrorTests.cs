@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace Dangl.Data.Shared.Tests
@@ -86,6 +86,55 @@ namespace Dangl.Data.Shared.Tests
             Assert.Equal("Message", apiError.Errors.First().Key);
             Assert.Single(apiError.Errors.First().Value);
             Assert.Equal("Unknown Error", apiError.Errors.First().Value[0]);
+        }
+
+        [Fact]
+        public void CanDeserializeEmptyApiErrorFromJson()
+        {
+            var jsonError = "{}";
+            var deserializedApiError = JsonConvert.DeserializeObject<ApiError>(jsonError);
+            Assert.NotNull(deserializedApiError);
+            Assert.Null(deserializedApiError.Errors);
+        }
+
+        [Fact]
+        public void CanDeserializeSingleValueApiErrorFromJson()
+        {
+            var jsonError = "{ \"Errors\": { \"MyError\": [ \"Error\" ] } }";
+            var deserializedApiError = JsonConvert.DeserializeObject<ApiError>(jsonError);
+            Assert.NotNull(deserializedApiError);
+            Assert.Single(deserializedApiError.Errors);
+            Assert.Single(deserializedApiError.Errors.First().Value);
+            Assert.Equal("MyError", deserializedApiError.Errors.First().Key);
+            Assert.Single(deserializedApiError.Errors.First().Value);
+            Assert.Equal("Error", deserializedApiError.Errors.First().Value.First());
+        }
+
+        [Fact]
+        public void CanDeserializeMultipleValueApiErrorFromJson()
+        {
+            var jsonError = "{ \"Errors\": {"
+                + "\"FirstError\": [ \"Single Error\" ],"
+                + "\"SecondError\": [ \"One\", \"Two\" ]"
+                            + "} }";
+            var deserializedApiError = JsonConvert.DeserializeObject<ApiError>(jsonError);
+            Assert.NotNull(deserializedApiError);
+            Assert.Equal(2, deserializedApiError.Errors.Count);
+            var firstError = deserializedApiError.Errors
+                .Where(e => e.Key == "FirstError")
+                .Select(e => e.Value)
+                .FirstOrDefault();
+            Assert.NotNull(firstError);
+            Assert.Single(firstError);
+            Assert.Contains("Single Error", firstError);
+            var secondError = deserializedApiError.Errors
+                .Where(e => e.Key == "SecondError")
+                .Select(e => e.Value)
+                .FirstOrDefault();
+            Assert.NotNull(secondError);
+            Assert.Equal(2, secondError.Length);
+            Assert.Contains("One", secondError);
+            Assert.Contains("Two", secondError);
         }
     }
 }
