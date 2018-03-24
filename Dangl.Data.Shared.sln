@@ -3,25 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".build", "build\.build.csproj", "{C121E78B-2880-470A-B536-5FC40484726C}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dangl.Data.Shared", "src\Dangl.Data.Shared\Dangl.Data.Shared.csproj", "{446ED6D9-965A-49E4-9697-34CCBD337942}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3CD44DB1-702E-44C3-A736-6CAC33F33F85}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FB569289-C210-4FB7-831D-28A64BCBAB20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dangl.Data.Shared.Tests", "test\Dangl.Data.Shared.Tests\Dangl.Data.Shared.Tests.csproj", "{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dangl.Data.Shared.Tests", "test\Dangl.Data.Shared.Tests\Dangl.Data.Shared.Tests.csproj", "{1FFE5166-BF6D-4FCD-8F49-0F0B67C43F7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dangl.Data.Shared.AspNetCore", "src\Dangl.Data.Shared.AspNetCore\Dangl.Data.Shared.AspNetCore.csproj", "{A425B68D-5A77-413A-AB9B-035182C3B4C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dangl.Data.Shared.AspNetCore", "src\Dangl.Data.Shared.AspNetCore\Dangl.Data.Shared.AspNetCore.csproj", "{A425B68D-5A77-413A-AB9B-035182C3B4C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dangl.Data.Shared.AspNetCore.Tests", "test\Dangl.Data.Shared.AspNetCore.Tests\Dangl.Data.Shared.AspNetCore.Tests.csproj", "{E077D963-BB58-4525-9046-80EB781708BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Dangl.Data.Shared.AspNetCore.Tests", "test\Dangl.Data.Shared.AspNetCore.Tests\Dangl.Data.Shared.AspNetCore.Tests.csproj", "{E077D963-BB58-4525-9046-80EB781708BD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F3E64385-1298-4032-9EDA-BB17DED45CBF}"
 	ProjectSection(SolutionItems) = preProject
-		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
-		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
+		CHANGELOG.md = CHANGELOG.md
+		docfx.json = docfx.json
+		GitVersion.yml = GitVersion.yml
 		README.md = README.md
-		Tests.ps1 = Tests.ps1
-		TestsAndCoverage.ps1 = TestsAndCoverage.ps1
+		toc.yml = toc.yml
 	EndProjectSection
 EndProject
 Global
@@ -30,6 +32,8 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C121E78B-2880-470A-B536-5FC40484726C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C121E78B-2880-470A-B536-5FC40484726C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{446ED6D9-965A-49E4-9697-34CCBD337942}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{446ED6D9-965A-49E4-9697-34CCBD337942}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{446ED6D9-965A-49E4-9697-34CCBD337942}.Release|Any CPU.ActiveCfg = Release|Any CPU

@@ -9,6 +9,8 @@ The aim of this solution is to consolidate simple, reused code such as `ApiError
 Link to docs:
   * [Dangl.Data.Shared](https://docs.dangl-it.com/Projects/Dangl.Data.Shared)
 
+[Changelog](./CHANGELOG.md)
+
 ## ModelStateValidationFilter
 The `ModelStateValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the passed `ModelState`
 of an action is invalid. This allows to keep controlls free of basic model state validation logic.
