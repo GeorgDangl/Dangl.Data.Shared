@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
     <VersionPrefix>1.0.2</VersionPrefix>
+    <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
     <Description>Commonly used code for Asp.Net Core &amp; Web projects</Description>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
