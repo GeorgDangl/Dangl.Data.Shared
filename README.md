@@ -15,11 +15,32 @@ Link to docs:
 The `ModelStateValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the passed `ModelState`
 of an action is invalid. This allows to keep controlls free of basic model state validation logic.
 
-To use the filter, it must be configured in the `AddMvd()` call in `ConfigureServices`:
+To use the filter, it must be configured in the `AddMvc()` call in `ConfigureServices`:
 
     services.AddMvc(options =>
         {
             options.Filters.Add(typeof(ModelStateValidationFilter));
+        })
+
+## RequiredFormFileValidationFilter
+The `RequiredFormFileValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the invoked
+Controller action as paramaters of type `IFormFile` that are annotated with `[Required]` but have no value bound.
+
+For example, the following action makes use of the filter:
+
+```csharp
+[HttpPost("RequiredFormFile")]
+public IActionResult RequiredFormFile([Required]IFormFile formFile)
+{
+    return Ok();
+}
+```
+
+To use the filter, it must be configured in the `AddMvc()` call in `ConfigureServices`:
+
+    services.AddMvc(options =>
+        {
+            options.Filters.Add(typeof(RequiredFormFileValidationFilter));
         })
 
 ## BiggerThanZeroAttribute
