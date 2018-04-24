@@ -1,17 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <TargetFrameworks>netstandard1.3;netstandard2.0</TargetFrameworks>
     <Description>Commonly used code for Asp.Net Core &amp; Web projects</Description>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
-    <Copyright>(c) 2017 Georg Dangl</Copyright>
+    <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
     <PackageProjectUrl>https://github.com/GeorgDangl/Dangl.Data.Shared</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeorgDangl/Dangl.Data.Shared.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
-    <VersionSuffix Condition=" '$(GIT_BRANCH)' == 'origin/develop'">build-$(BUILD_NUMBER)</VersionSuffix>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

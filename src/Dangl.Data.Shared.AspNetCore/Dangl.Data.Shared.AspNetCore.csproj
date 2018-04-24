@@ -2,16 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <VersionPrefix>1.0.1</VersionPrefix>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Commonly used code for Asp.Net Core projects</Description>
     <Authors>Georg Dangl</Authors>
-    <Copyright>(c) 2017 Georg Dangl</Copyright>
+    <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
     <PackageProjectUrl>https://github.com/GeorgDangl/Dangl.Data.Shared</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeorgDangl/Dangl.Data.Shared.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
-    <VersionSuffix Condition=" '$(GIT_BRANCH)' == 'origin/develop'">build-$(BUILD_NUMBER)</VersionSuffix>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
