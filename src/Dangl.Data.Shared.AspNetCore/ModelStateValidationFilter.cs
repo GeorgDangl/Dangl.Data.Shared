@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Dangl.Data.Shared.AspNetCore
 {
@@ -11,6 +13,19 @@ namespace Dangl.Data.Shared.AspNetCore
     /// </summary>
     public class ModelStateValidationFilter : IActionFilter
     {
+        private readonly ILogger _logger;
+
+        /// <summary>
+        /// If the ModelState of the context is invalid, a <see cref="BadRequestObjectResult"/>
+        /// is returned with an <see cref="AspNetCoreApiError"/> body that contains error information. For valid states,
+        /// no action is executed.
+        /// </summary>
+        /// <param name="loggerFactory"></param>
+        public ModelStateValidationFilter(ILoggerFactory loggerFactory = null)
+        {
+            _logger = (loggerFactory ?? NullLoggerFactory.Instance).CreateLogger<ModelStateValidationFilter>();
+        }
+
         /// <summary>
         /// If the ModelState of the context is invalid, a <see cref="BadRequestObjectResult"/>
         /// is returned with an <see cref="AspNetCoreApiError"/> body that contains error information. For valid states,
@@ -21,6 +36,7 @@ namespace Dangl.Data.Shared.AspNetCore
         {
             if (context?.ModelState?.IsValid == false)
             {
+                _logger.LogInformation("Send BadRequest response due to invalid ModelState");
                 var apiErrorResult = new AspNetCoreApiError(context.ModelState);
                 context.Result = new BadRequestObjectResult(apiErrorResult);
             }
