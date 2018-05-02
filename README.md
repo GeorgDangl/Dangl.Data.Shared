@@ -1,6 +1,8 @@
 # Dangl.Data.Shared
 [![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=Dangl.Data.Shared.Tests)](https://jenkins.dangl.me/job/Dangl.Data.Shared.Tests/)
 
+![NuGet](https://img.shields.io/nuget/v/Dangl.Data.Shared.svg)
+
 This solution builds both **Dangl.Data.Shared** and **Dangl.Data.Shared.AspNetCore** packages.
 Tests are run with `./Tests.ps1`, code coverage with `./TestsAndCoverage`, both in the solution root.
 
