@@ -198,7 +198,7 @@ class Build : NukeBuild
             var dotnetPath = Path.GetDirectoryName(ToolPathResolver.GetPathExecutable("dotnet.exe"));
             var msBuildPath = Path.Combine(dotnetPath, "sdk", DocFxDotNetSdkVersion, "MSBuild.dll");
             SetVariable("MSBUILD_EXE_PATH", msBuildPath);
-            DocFxMetadata(DocFxFile, s => s.SetLogLevel(DocFxLogLevel.Verbose));
+            DocFxMetadata(DocFxFile, s => s.SetLogLevel(DocFxLogLevel.Warning));
         });
 
     Target BuildDocumentation => _ => _
@@ -216,7 +216,7 @@ class Build : NukeBuild
 
             DocFxBuild(DocFxFile, s => s
                 .ClearXRefMaps()
-                .SetLogLevel(DocFxLogLevel.Verbose));
+                .SetLogLevel(DocFxLogLevel.Warning));
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "shared", true);
