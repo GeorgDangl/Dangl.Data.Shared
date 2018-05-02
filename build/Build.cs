@@ -47,8 +47,8 @@ class Build : NukeBuild
     // [Parameter] readonly string MyGetApiKey;
     // Returns command-line arguments and environment variables.
 
-    [Parameter] string ProGetSource;
-    [Parameter] string ProGetApiKey;
+    [Parameter] string MyGetSource;
+    [Parameter] string MyGetApiKey;
     [Parameter] string DocuApiKey;
     [Parameter] string DocuApiEndpoint;
     [Parameter] string GitHubAuthenticationToken;
@@ -90,6 +90,7 @@ class Build : NukeBuild
             var changeLog = GetCompleteChangeLog(ChangeLogFile)
                 .EscapeStringPropertyForMsBuild();
             DotNetPack(s => DefaultDotNetPack
+                .SetDescription("Dangl.Data.Shared - www.dangl-it.com")
                 .SetPackageReleaseNotes(changeLog));
         });
 
@@ -172,8 +173,8 @@ class Build : NukeBuild
 
     Target Push => _ => _
         .DependsOn(Pack)
-        .Requires(() => ProGetSource)
-        .Requires(() => ProGetApiKey)
+        .Requires(() => MyGetSource)
+        .Requires(() => MyGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
         .Executes(() =>
         {
@@ -183,8 +184,8 @@ class Build : NukeBuild
                 {
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
-                        .SetSource(ProGetSource)
-                        .SetApiKey(ProGetApiKey));
+                        .SetSource(MyGetSource)
+                        .SetApiKey(MyGetApiKey));
                 });
         });
 
@@ -197,7 +198,7 @@ class Build : NukeBuild
             var dotnetPath = Path.GetDirectoryName(ToolPathResolver.GetPathExecutable("dotnet.exe"));
             var msBuildPath = Path.Combine(dotnetPath, "sdk", DocFxDotNetSdkVersion, "MSBuild.dll");
             SetVariable("MSBUILD_EXE_PATH", msBuildPath);
-            DocFxMetadata(DocFxFile, s => s.SetLogLevel(DocFxLogLevel.Verbose));
+            DocFxMetadata(DocFxFile, s => s.SetLogLevel(DocFxLogLevel.Warning));
         });
 
     Target BuildDocumentation => _ => _
@@ -215,7 +216,7 @@ class Build : NukeBuild
 
             DocFxBuild(DocFxFile, s => s
                 .ClearXRefMaps()
-                .SetLogLevel(DocFxLogLevel.Verbose));
+                .SetLogLevel(DocFxLogLevel.Warning));
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "shared", true);
