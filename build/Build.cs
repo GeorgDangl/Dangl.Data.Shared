@@ -90,6 +90,7 @@ class Build : NukeBuild
             var changeLog = GetCompleteChangeLog(ChangeLogFile)
                 .EscapeStringPropertyForMsBuild();
             DotNetPack(s => DefaultDotNetPack
+                .SetDescription("Dangl.Data.Shared - www.dangl-it.com")
                 .SetPackageReleaseNotes(changeLog));
         });
 
