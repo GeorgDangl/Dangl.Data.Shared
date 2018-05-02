@@ -47,8 +47,8 @@ class Build : NukeBuild
     // [Parameter] readonly string MyGetApiKey;
     // Returns command-line arguments and environment variables.
 
-    [Parameter] string ProGetSource;
-    [Parameter] string ProGetApiKey;
+    [Parameter] string MyGetSource;
+    [Parameter] string MyGetApiKey;
     [Parameter] string DocuApiKey;
     [Parameter] string DocuApiEndpoint;
     [Parameter] string GitHubAuthenticationToken;
@@ -173,8 +173,8 @@ class Build : NukeBuild
 
     Target Push => _ => _
         .DependsOn(Pack)
-        .Requires(() => ProGetSource)
-        .Requires(() => ProGetApiKey)
+        .Requires(() => MyGetSource)
+        .Requires(() => MyGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
         .Executes(() =>
         {
@@ -184,8 +184,8 @@ class Build : NukeBuild
                 {
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
-                        .SetSource(ProGetSource)
-                        .SetApiKey(ProGetApiKey));
+                        .SetSource(MyGetSource)
+                        .SetApiKey(MyGetApiKey));
                 });
         });
 
