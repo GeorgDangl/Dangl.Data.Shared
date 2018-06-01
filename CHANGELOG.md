@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.0.6:
+- Rename ´FileResult` to `FileResultContainer`
+
 ## v1.0.5:
 - Add `FileResult`
 
