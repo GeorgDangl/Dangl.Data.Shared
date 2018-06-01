@@ -5,7 +5,7 @@ namespace Dangl.Data.Shared
     /// <summary>
     /// This is a Dto class for file results
     /// </summary>
-    public class FileResult
+    public class FileResultContainer
     {
         /// <summary>
         /// Initializes all properties
@@ -13,7 +13,7 @@ namespace Dangl.Data.Shared
         /// <param name="stream"></param>
         /// <param name="fileName"></param>
         /// <param name="mimeType"></param>
-        public FileResult(Stream stream, string fileName, string mimeType)
+        public FileResultContainer(Stream stream, string fileName, string mimeType)
         {
             Stream = stream;
             FileName = fileName;
@@ -23,7 +23,7 @@ namespace Dangl.Data.Shared
         /// <summary>
         /// Default constructor
         /// </summary>
-        public FileResult()
+        public FileResultContainer()
         {
         }
 
