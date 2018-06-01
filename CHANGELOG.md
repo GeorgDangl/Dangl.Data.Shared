@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.0.5:
+- Add `FileResult`
+
 ## v1.0.3:
 - Add logging to `ModelStateValidationFilter` if invalid requests get rejected
 
