@@ -133,7 +133,7 @@ class Build : NukeBuild
                 var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
                 var snapshotIndex = i;
 
-                string xUnitOutputPath = OutputDirectory / $"test_{snapshotIndex:00}.testresults";
+                string xUnitOutputPath = OutputDirectory / $"test_{snapshotIndex:00}_testresults.xml";
                 DotCoverCover(c => c
                     .SetTargetExecutable(dotnetPath)
                     .SetTargetWorkingDirectory(projectDirectory)
