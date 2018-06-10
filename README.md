@@ -47,3 +47,9 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
 ## BiggerThanZeroAttribute
 
 The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to `int` properties to ensure their values are greater than zero.
+
+## JsonOptionsExtensions
+
+The `JsonOptionsExtensions` class configures default Json options for the Newtonsoft Json serializer.
+It ignores null values, uses the `StringEnumConverter` and ignores default values for `Guid`, `DateTime`
+and `DateTimeOffset`.
