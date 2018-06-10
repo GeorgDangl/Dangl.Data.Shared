@@ -1,5 +1,5 @@
 # Dangl.Data.Shared
-[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=Dangl.Data.Shared.Tests)](https://jenkins.dangl.me/job/Dangl.Data.Shared.Tests/)  
+[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=Dangl.Data.Shared/develop)](https://jenkins.dangl.me/job/Dangl.Data.Shared/)  
 ![NuGet](https://img.shields.io/nuget/v/Dangl.Data.Shared.svg)  
 [![Built with Nuke](http://nuke.build/rounded)](https://www.nuke.build)
 
