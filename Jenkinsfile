@@ -9,7 +9,7 @@ pipeline {
         MyGetSource = credentials('MyGetPushSource')
         MyGetApiKey = credentials('MyGetApiKey')
         NuGetApiKey = credentials('NuGetApiKey')
-        DocuApiKey = credentials('Dangl.Data.Shared_Docu_ApiKey')
+        DocuApiKey = credentials('Dangl.Data.Shared.Docu_ApiKey')
         DocuApiEndpoint = credentials('docu_api_upload_endpoint')
         GitHubAuthenticationToken = credentials('GitHubAuthenticationToken')
     }
