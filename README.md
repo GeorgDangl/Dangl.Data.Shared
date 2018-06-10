@@ -1,5 +1,5 @@
 # Dangl.Data.Shared
-[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=Dangl.Data.Shared.Tests)](https://jenkins.dangl.me/job/Dangl.Data.Shared.Tests/)  
+[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=Dangl.Data.Shared/develop)](https://jenkins.dangl.me/job/Dangl.Data.Shared/)  
 ![NuGet](https://img.shields.io/nuget/v/Dangl.Data.Shared.svg)  
 [![Built with Nuke](http://nuke.build/rounded)](https://www.nuke.build)
 
@@ -47,3 +47,9 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
 ## BiggerThanZeroAttribute
 
 The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to `int` properties to ensure their values are greater than zero.
+
+## JsonOptionsExtensions
+
+The `JsonOptionsExtensions` class configures default Json options for the Newtonsoft Json serializer.
+It ignores null values, uses the `StringEnumConverter` and ignores default values for `Guid`, `DateTime`
+and `DateTimeOffset`.

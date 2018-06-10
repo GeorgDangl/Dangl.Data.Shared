@@ -5,10 +5,10 @@ using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
-using Nuke.Core;
-using Nuke.Core.Tooling;
-using Nuke.Core.Utilities;
-using Nuke.Core.Utilities.Collections;
+using Nuke.Common;
+using Nuke.Common.Tooling;
+using Nuke.Common.Utilities;
+using Nuke.Common.Utilities.Collections;
 using Nuke.GitHub;
 using Nuke.WebDocu;
 using System;
@@ -23,10 +23,10 @@ using static Nuke.Common.Tools.DocFx.DocFxTasks;
 using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
-using static Nuke.Core.EnvironmentInfo;
-using static Nuke.Core.IO.FileSystemTasks;
-using static Nuke.Core.IO.PathConstruction;
-using static Nuke.Core.Tooling.ProcessTasks;
+using static Nuke.Common.EnvironmentInfo;
+using static Nuke.Common.IO.FileSystemTasks;
+using static Nuke.Common.IO.PathConstruction;
+using static Nuke.Common.Tooling.ProcessTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
@@ -49,6 +49,7 @@ class Build : NukeBuild
 
     [Parameter] string MyGetSource;
     [Parameter] string MyGetApiKey;
+    [Parameter] string NuGetApiKey;
     [Parameter] string DocuApiKey;
     [Parameter] string DocuApiEndpoint;
     [Parameter] string GitHubAuthenticationToken;
@@ -132,11 +133,11 @@ class Build : NukeBuild
                 var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
                 var snapshotIndex = i;
 
-                string xUnitOutputDirectory = OutputDirectory / $"test_{snapshotIndex:00}.testresults";
+                string xUnitOutputPath = OutputDirectory / $"test_{snapshotIndex:00}_testresults.xml";
                 DotCoverCover(c => c
                     .SetTargetExecutable(dotnetPath)
                     .SetTargetWorkingDirectory(projectDirectory)
-                    .SetTargetArguments($"xunit -nobuild -xml {xUnitOutputDirectory.DoubleQuoteIfNeeded()}")
+                    .SetTargetArguments($"xunit -nobuild -xml {xUnitOutputPath.DoubleQuoteIfNeeded()}")
                     .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
                     .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
                     .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot"));
@@ -175,6 +176,7 @@ class Build : NukeBuild
         .DependsOn(Pack)
         .Requires(() => MyGetSource)
         .Requires(() => MyGetApiKey)
+        .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
         .Executes(() =>
         {
@@ -186,6 +188,15 @@ class Build : NukeBuild
                         .SetTargetPath(x)
                         .SetSource(MyGetSource)
                         .SetApiKey(MyGetApiKey));
+
+                    if (GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
+                    {
+                        // Stable releases are published to NuGet
+                        DotNetNuGetPush(s => s
+                            .SetTargetPath(x)
+                            .SetSource("https://api.nuget.org/v3/index.json")
+                            .SetApiKey(NuGetApiKey));
+                    }
                 });
         });
 

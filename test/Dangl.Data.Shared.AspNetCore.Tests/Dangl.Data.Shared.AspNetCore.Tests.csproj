@@ -1,10 +1,14 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netcoreapp2.0;net461;net47</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <!-- Required, otherwise multiple 2.0.x frameworks lead to xUnit not discovering the framework to run in -->
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
