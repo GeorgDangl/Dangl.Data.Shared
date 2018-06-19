@@ -143,6 +143,8 @@ class Build : NukeBuild
                     .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot"));
             }
 
+            PrependFrameworkToTestresults();
+
             var snapshots = testProjects.Select((t, i) => OutputDirectory / $"coverage{i:00}.snapshot")
                 .Select(p => p.ToString())
                 .Aggregate((c, n) => c + ";" + n);
@@ -281,7 +283,7 @@ class Build : NukeBuild
 
     void PrependFrameworkToTestresults()
     {
-        var testResults = GlobFiles(OutputDirectory, "*.testresults");
+        var testResults = GlobFiles(OutputDirectory, "*testresults-*.xml");
         foreach (var testResultFile in testResults)
         {
             var frameworkName = GetFrameworkNameFromFilename(testResultFile);
@@ -304,7 +306,7 @@ class Build : NukeBuild
     string GetFrameworkNameFromFilename(string filename)
     {
         var name = Path.GetFileName(filename);
-        name = name.Substring(0, name.Length - ".testresults".Length);
+        name = name.Substring(0, name.Length - ".xml".Length);
         var startIndex = name.LastIndexOf('-');
         name = name.Substring(startIndex + 1);
         return name;
