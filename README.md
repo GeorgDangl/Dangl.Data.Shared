@@ -53,3 +53,14 @@ The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to 
 The `JsonOptionsExtensions` class configures default Json options for the Newtonsoft Json serializer.
 It ignores null values, uses the `StringEnumConverter` and ignores default values for `Guid`, `DateTime`
 and `DateTimeOffset`.
+
+## ClaimBasedAuthorizationRequirement
+
+The namespace `Dangl.Data.Shared.AspNetCore.Authorization` contains utilities and an extension method 
+
+    public static AuthorizationPolicyBuilder AddClaimsValueAuthorization(this AuthorizationPolicyBuilder policy,
+            IServiceCollection services,
+            params string[] claimNames)
+
+which can be used to configure policies that require a a claim to be present on the user with a value that is either `true`
+or a datetime (like `2018-08-08T09:02:15.5732531Z`) that lies in the future to indicate that a claim is still valid.
