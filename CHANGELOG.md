@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.0.8:
+- Add `IClaimBasedAuthorizationRequirement` and supporting functionality
+
 ## v1.0.7:
 - Add `JsonOptionsExtensions`
 

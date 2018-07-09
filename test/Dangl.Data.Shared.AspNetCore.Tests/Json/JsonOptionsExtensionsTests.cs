@@ -8,7 +8,7 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Json
     public class JsonOptionsExtensionsTests
     {
         [Fact]
-        public void SerializesEnumAsString()
+        public void SerializesEnumAsString_01()
         {
             var jsonOptions = new JsonSerializerSettings();
             jsonOptions.ConfigureDefaultJsonSerializerSettings();
@@ -56,6 +56,128 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Json
         {
             One = 1,
             Two = 2
+        }
+
+        [Fact]
+        public void DoesSerializeDefaultEnum()
+        {
+            var dto = new JsonTestDto();
+            var serialized = Serialize(dto);
+            Assert.Contains($"\"{nameof(JsonTestDto.EnumValue)}\"", serialized);
+        }
+
+        [Fact]
+        public void SerializesEnumAsString_02()
+        {
+            var dto = new JsonTestDto();
+            dto.EnumValue = JsonTestEnum.NonDefault;
+            var serialized = Serialize(dto);
+            Assert.Contains($"\"{JsonTestEnum.NonDefault.ToString()}\"", serialized);
+        }
+
+        [Fact]
+        public void DoesNotSerializeNullValue()
+        {
+            var dto = new JsonTestDto();
+            dto.DateTimeOffsetProperty = DateTimeOffset.UtcNow;
+            var serialized = Serialize(dto);
+            Assert.DoesNotContain($"\"{nameof(JsonTestDto.InnerDto)}\"", serialized);
+        }
+
+        [Fact]
+        public void SerializesComplexProperty()
+        {
+            var dto = new JsonTestDto();
+            dto.InnerDto = new JsonTestDto();
+            var serialized = Serialize(dto);
+            Assert.Contains($"\"{nameof(JsonTestDto.InnerDto)}\"", serialized);
+        }
+
+        [Fact]
+        public void DoesNotSerializeDateTimeMin()
+        {
+            var dto = new JsonTestDto();
+            dto.DateTimeOffsetProperty = DateTimeOffset.UtcNow;
+            var serialized = Serialize(dto);
+            Assert.DoesNotContain($"\"{nameof(JsonTestDto.DateTimeProperty)}\"", serialized);
+        }
+
+        [Fact]
+        public void SerializesDateTime()
+        {
+            var dto = new JsonTestDto();
+            dto.DateTimeProperty = DateTime.UtcNow;
+            var serialized = Serialize(dto);
+            // The "\":\"" part ensures that a string values is serialized, null would have no surrounding quotes
+            Assert.Contains(nameof(JsonTestDto.DateTimeProperty) + "\":\"", serialized);
+        }
+
+        [Fact]
+        public void DoesNotSerializeDateTimeOffsetMin()
+        {
+            var dto = new JsonTestDto();
+            dto.DateTimeProperty = DateTime.UtcNow;
+            var serialized = Serialize(dto);
+            Assert.DoesNotContain($"\"{nameof(JsonTestDto.DateTimeOffsetProperty)}\"", serialized);
+        }
+
+        [Fact]
+        public void SerializesDateTimeOffset()
+        {
+            var dto = new JsonTestDto();
+            dto.DateTimeOffsetProperty = DateTimeOffset.UtcNow;
+            var serialized = Serialize(dto);
+            // The "\":\"" part ensures that a string values is serialized, null would have no surrounding quotes
+            Assert.Contains(nameof(JsonTestDto.DateTimeOffsetProperty) + "\":\"", serialized);
+        }
+
+        [Fact]
+        public void DeserializesNullAsDefaultDateTime()
+        {
+            var input = "{\"DateTimeProperty\": null}";
+            var deserialized = Deserialize(input);
+            Assert.Equal(default, deserialized.DateTimeProperty);
+        }
+
+        [Fact]
+        public void DeserializesNullAsdDefaultDateTimeOffset()
+        {
+            var input = "{\"DateTimeOffsetProperty\": null}";
+            var deserialized = Deserialize(input);
+            Assert.Equal(default, deserialized.DateTimeOffsetProperty);
+        }
+
+        private JsonTestDto Deserialize(string jsonString)
+        {
+            var deserialized = JsonConvert.DeserializeObject<JsonTestDto>(jsonString, GetSerializerSettings());
+            return deserialized;
+        }
+
+        private string Serialize(JsonTestDto dto)
+        {
+            var serialized = JsonConvert.SerializeObject(dto, GetSerializerSettings());
+            return serialized;
+        }
+
+        private JsonSerializerSettings GetSerializerSettings()
+        {
+            var serializerSettings = new JsonSerializerSettings();
+            serializerSettings.ConfigureDefaultJsonSerializerSettings();
+            return serializerSettings;
+        }
+
+        public class JsonTestDto
+        {
+            public DateTime DateTimeProperty { get; set; }
+            public DateTimeOffset DateTimeOffsetProperty { get; set; }
+            public JsonTestDto InnerDto { get; set; }
+            public JsonTestEnum EnumValue { get; set; }
+        }
+
+        public enum JsonTestEnum
+        {
+            Default = 0,
+            NonDefault = 1
         }
     }
 }
