@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Dangl.Data.Shared.AspNetCore.Authorization
 {
-    // TODO UPDATE README
     /// <summary>
     /// This configures a policy that checks for required claims and ensures their value
     /// is either "true" or a date in the future until it is valid.

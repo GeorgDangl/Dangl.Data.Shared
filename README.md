@@ -54,13 +54,30 @@ The `JsonOptionsExtensions` class configures default Json options for the Newton
 It ignores null values, uses the `StringEnumConverter` and ignores default values for `Guid`, `DateTime`
 and `DateTimeOffset`.
 
-## ClaimBasedAuthorizationRequirement
+## IClaimBasedAuthorizationRequirement
 
-The namespace `Dangl.Data.Shared.AspNetCore.Authorization` contains utilities and an extension method 
+The namespace `Dangl.Data.Shared.AspNetCore.Authorization` contains utilities that help in building authorization policies that
+check for existing claims on authenticated users. By default, claim values that are either `true` or represent a valid-until time in
+the future (like `2018-08-08T09:02:15.5732531Z`) are considered valid and will lead to the requirement handler succeeding.
 
-    public static AuthorizationPolicyBuilder AddClaimsValueAuthorization(this AuthorizationPolicyBuilder policy,
-            IServiceCollection services,
-            params string[] claimNames)
+To use it, there is an interface for the requirements:
 
-which can be used to configure policies that require a a claim to be present on the user with a value that is either `true`
-or a datetime (like `2018-08-08T09:02:15.5732531Z`) that lies in the future to indicate that a claim is still valid.
+```csharp
+public interface IClaimBasedAuthorizationRequirement : IAuthorizationRequirement
+{
+    IReadOnlyList<string> ClaimNames { get; }
+}
+```
+
+Now, a class can be defined that implements this interface and be added as requirement in a policy:
+
+```csharp
+o.AddPolicy(AvaCloudConstants.CONVERSION_POLICY_NAME, policy => policy
+                        .AddRequirements(new ConversionRequirement(requiredUserClaim, requiredClientClaim)));
+```
+
+And the `IAuthorizationHandler` must be configured in the services:
+
+```csharp
+services.AddTransient<IAuthorizationHandler, ClaimBasedAuthorizationRequirementHandler<ConversionRequirement>>();
+```

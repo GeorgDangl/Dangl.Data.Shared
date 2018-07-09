@@ -16,6 +16,10 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
         /// </summary>
         public IReadOnlyList<string> ClaimNames { get; }
 
+        private BaseClaimBasedAuthorizationRequirement()
+        {
+        }
+
         /// <summary>
         /// The list of names of claims that should be checked, any single one found will
         /// result in the requirement being met
