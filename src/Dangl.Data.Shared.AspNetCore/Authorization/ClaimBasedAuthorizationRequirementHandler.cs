@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Security.Claims;
@@ -12,6 +13,17 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
     /// </summary>
     public class ClaimBasedAuthorizationRequirementHandler : AuthorizationHandler<ClaimBasedAuthorizationRequirement>
     {
+        private ILogger _logger;
+
+        /// <summary>
+        /// Creates the handler and a logger
+        /// </summary>
+        /// <param name="loggerFactory"></param>
+        public ClaimBasedAuthorizationRequirementHandler(ILoggerFactory loggerFactory)
+        {
+            _logger = loggerFactory?.CreateLogger<ClaimBasedAuthorizationRequirementHandler>();
+        }
+
         /// <summary>
         /// This checks if at least one of the required claims with a value indicating
         /// validity is present
@@ -27,10 +39,15 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
                 {
                     if (ClaimHasValidValue(claim))
                     {
+                        _logger?.LogInformation($"ClaimValueRequirement was fulfilled for the claim {claim.Type} with value {claim.Value}");
                         context.Succeed(requirement);
                         break;
                     }
                 }
+            }
+            if (!context.HasSucceeded)
+            {
+                _logger?.LogInformation("ClaimValueRequirement was not fulfilled for the following claim names: " + requirement.ClaimNames.Aggregate((c, n) => c + ", " + n));
             }
 
             return Task.CompletedTask;
