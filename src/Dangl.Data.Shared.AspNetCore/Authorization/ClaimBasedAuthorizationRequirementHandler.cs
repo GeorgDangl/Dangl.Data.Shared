@@ -11,7 +11,7 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
     /// This configures a policy that checks for required claims and ensures their value
     /// is either "true" or a date in the future until it is valid.
     /// </summary>
-    public class ClaimBasedAuthorizationRequirementHandler : AuthorizationHandler<ClaimBasedAuthorizationRequirement>
+    public class ClaimBasedAuthorizationRequirementHandler<T> : AuthorizationHandler<T> where T : IClaimBasedAuthorizationRequirement
     {
         private ILogger _logger;
 
@@ -21,7 +21,7 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
         /// <param name="loggerFactory"></param>
         public ClaimBasedAuthorizationRequirementHandler(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory?.CreateLogger<ClaimBasedAuthorizationRequirementHandler>();
+            _logger = loggerFactory?.CreateLogger<ClaimBasedAuthorizationRequirementHandler<T>>();
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
         /// <param name="context"></param>
         /// <param name="requirement"></param>
         /// <returns></returns>
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, ClaimBasedAuthorizationRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, T requirement)
         {
             if (context.User.Identity.IsAuthenticated)
             {

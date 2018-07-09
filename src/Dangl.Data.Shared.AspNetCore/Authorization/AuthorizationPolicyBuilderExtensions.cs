@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Dangl.Data.Shared.AspNetCore.Authorization
 {
+    // TODO DELETE AND RENAME FILE
+    /*
     /// <summary>
     /// Extension class to set up policies
     /// </summary>
@@ -27,4 +29,5 @@ namespace Dangl.Data.Shared.AspNetCore.Authorization
                 .AddRequirements(new ClaimBasedAuthorizationRequirement(claimNames));
         }
     }
+    */
 }

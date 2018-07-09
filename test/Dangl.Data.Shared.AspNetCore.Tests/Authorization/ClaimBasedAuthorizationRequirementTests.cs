@@ -5,6 +5,8 @@ using Xunit;
 
 namespace Dangl.Data.Shared.AspNetCore.Tests.Authorization
 {
+    // TODO DELETE
+    /*
     public class ClaimBasedAuthorizationRequirementTests
     {
         [Fact]
@@ -34,4 +36,5 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Authorization
             Assert.Equal("client_myClaimName", requirement.ClaimNames.Last());
         }
     }
+    */
 }

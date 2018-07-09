@@ -10,9 +10,14 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Authorization
 {
     public class ClaimBasedAuthorizationRequirementHandlerTests
     {
-        private readonly ClaimBasedAuthorizationRequirementHandler _handler = new ClaimBasedAuthorizationRequirementHandler(null);
+        public class MockClaimBasedAuthorizationRequirement : IClaimBasedAuthorizationRequirement
+        {
+            public IReadOnlyList<string> ClaimNames => new List<string> { _requiredClaimName, _optionalPrefix + _requiredClaimName };
+        }
+
+        private readonly ClaimBasedAuthorizationRequirementHandler<MockClaimBasedAuthorizationRequirement> _handler = new ClaimBasedAuthorizationRequirementHandler<MockClaimBasedAuthorizationRequirement>(null);
         private AuthorizationHandlerContext _context;
-        private readonly ClaimBasedAuthorizationRequirement _requirement = new ClaimBasedAuthorizationRequirement(_requiredClaimName, _optionalPrefix + _requiredClaimName);
+        private readonly MockClaimBasedAuthorizationRequirement _requirement = new MockClaimBasedAuthorizationRequirement();
 
         private static readonly string _requiredClaimName = "required_claim_name";
         private static readonly string _optionalPrefix = "client_";
