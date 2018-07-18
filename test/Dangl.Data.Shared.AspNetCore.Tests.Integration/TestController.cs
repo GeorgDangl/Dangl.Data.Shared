@@ -35,5 +35,14 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
         {
             return Ok();
         }
+
+        [HttpGet("JsonData")]
+        public IActionResult JsonData()
+        {
+            return Ok(new
+            {
+                Value = "Some Data"
+            });
+        }
     }
 }
