@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.0.9:
+- Add `HttpHeadRequestMiddleware` to support Http `HEAD` requests to all actions supporting originally only Http `GET`
+
 ## v1.0.8:
 - Add `IClaimBasedAuthorizationRequirement` and supporting functionality
 

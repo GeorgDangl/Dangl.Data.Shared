@@ -81,3 +81,15 @@ And the `IAuthorizationHandler` must be configured in the services:
 ```csharp
 services.AddTransient<IAuthorizationHandler, ClaimBasedAuthorizationRequirementHandler<ConversionRequirement>>();
 ```
+
+## HttpHeadRequestMiddleware
+
+This middleware transforms incoming Http `HEAD` requests internally to `GET` requests so that they can hit their intended target action.
+The body will be set to `Stream.Null`, so that only the response headers are being sent back to the client.  
+This should be called before the `AddMvc()` call, like this:
+
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    {
+        app.UseHttpHeadToGetTransform();
+        app.UseMvc();
+    }
