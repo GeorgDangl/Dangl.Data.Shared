@@ -93,3 +93,15 @@ This should be called before the `AddMvc()` call, like this:
         app.UseHttpHeadToGetTransform();
         app.UseMvc();
     }
+
+## CompressedRequestMiddleware
+
+This middleware supports clients that send their requests either `gzip` or `deflate` compressed. This can be used when endpoints
+expect big upload sizes to save on transfer time.  
+This should be called before other calls, like this:
+
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+    {
+        app.UseClientCompressionSupport();
+        app.UseMvc();
+    }

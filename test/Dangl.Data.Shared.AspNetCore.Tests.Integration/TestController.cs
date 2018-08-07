@@ -27,7 +27,7 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
         [HttpPost("Model")]
         public IActionResult Model([FromBody]ModelWithoutRequirement model)
         {
-            return Ok();
+            return Ok(model);
         }
 
         [HttpPost("ModelWithBiggerThanZeroAttribute")]

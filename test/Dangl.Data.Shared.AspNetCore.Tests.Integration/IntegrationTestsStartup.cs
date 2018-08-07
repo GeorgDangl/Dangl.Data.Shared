@@ -18,6 +18,7 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            app.UseClientCompressionSupport();
             app.UseHttpHeadToGetTransform();
             app.UseMvc();
         }
