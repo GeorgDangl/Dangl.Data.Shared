@@ -53,11 +53,10 @@ class Build : NukeBuild
 
     [KeyVaultSecret] string PublicMyGetSource;
     [KeyVaultSecret] string PublicMyGetApiKey;
-
-    [Parameter] string NuGetApiKey;
-    [Parameter] string DocuApiKey;
-    [Parameter] string DocuBaseUrl;
-    [Parameter] string GitHubAuthenticationToken;
+    [KeyVaultSecret] string NuGetApiKey;
+    [KeyVaultSecret] string DocuBaseUrl;
+    [KeyVaultSecret] string GitHubAuthenticationToken;
+    [KeyVaultSecret("DanglDataShared-DocuApiKey")] string DocuApiKey;
 
     [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
