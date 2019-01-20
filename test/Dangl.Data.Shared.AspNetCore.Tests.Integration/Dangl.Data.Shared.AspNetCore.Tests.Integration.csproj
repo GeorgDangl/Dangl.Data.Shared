@@ -1,18 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
     <IsPackable>false</IsPackable>
     <!-- Required, otherwise multiple 2.0.x frameworks lead to xUnit not discovering the framework to run in -->
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.7" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.0.2" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.7.0-preview-20180320-02" />
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.2.1" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 

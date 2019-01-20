@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.0;net461;net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;net461;net47</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <!-- Required, otherwise multiple 2.0.x frameworks lead to xUnit not discovering the framework to run in -->
     <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp2.0' ">2.0.0</RuntimeFrameworkVersion>
@@ -12,12 +12,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="Moq" Version="4.7.145" />
-    <PackageReference Include="xunit" Version="2.3.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+    <PackageReference Include="Moq" Version="4.10.1" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="OpenCover" Version="4.6.519" />
-    <PackageReference Include="OpenCoverToCoberturaConverter" Version="0.2.6" />
+    <PackageReference Include="OpenCoverToCoberturaConverter" Version="0.3.4" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
 
