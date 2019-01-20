@@ -32,6 +32,8 @@ using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
 using Nuke.Common.ProjectModel;
 using Nuke.Azure.KeyVault;
+using System.Collections.Generic;
+using static Nuke.Common.IO.XmlTasks;
 
 class Build : NukeBuild
 {
@@ -116,53 +118,62 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj");
-            var testRun = 1;
             foreach (var testProject in testProjects)
             {
-                var projectDirectory = Path.GetDirectoryName(testProject);
-                string testFile = OutputDirectory / $"test_{testRun++}.testresults";
-                // This is so that the global dotnet is used instead of the one that comes with NUKE
-                var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
+                foreach (var targetFramework in GetTestFrameworksForProjectFile(testProject))
+                {
+                    var projectDirectory = Path.GetDirectoryName(testProject);
+                    var projectName = Path.GetFileNameWithoutExtension(testProject);
 
-                StartProcess(dotnetPath, "xunit " +
-                                         "-nobuild " +
-                                         $"-xml {testFile.DoubleQuoteIfNeeded()}",
-                        workingDirectory: projectDirectory)
-                    // AssertWairForExit() instead of AssertZeroExitCode()
-                    // because we want to continue all tests even if some fail
-                    .AssertWaitForExit();
+                    DotNetTest(s => s
+                        .SetWorkingDirectory(projectDirectory)
+                        .SetNoBuild(true)
+                        .SetFramework(targetFramework)
+                        .SetLogger($"trx;LogFileName={OutputDirectory / projectName}_testresults-{targetFramework}.xml"));
+                }
             }
 
             PrependFrameworkToTestresults();
         });
+
+    IEnumerable<string> GetTestFrameworksForProjectFile(string projectFile)
+    {
+        var targetFrameworks = XmlPeek(projectFile, "//Project/PropertyGroup//TargetFrameworks")
+            .Concat(XmlPeek(projectFile, "//Project/PropertyGroup//TargetFramework"))
+            .Distinct()
+            .SelectMany(f => f.Split(';'));
+        return targetFrameworks;
+    }
 
     Target Coverage => _ => _
         .DependsOn(Compile)
         .Executes(() =>
         {
             var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj").ToList();
+            var snapshotIndex = 0;
             for (var i = 0; i < testProjects.Count; i++)
             {
                 var testProject = testProjects[i];
                 var projectDirectory = Path.GetDirectoryName(testProject);
                 // This is so that the global dotnet is used instead of the one that comes with NUKE
                 var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
-                var snapshotIndex = i;
-
-                string xUnitOutputPath = OutputDirectory / $"test_{snapshotIndex:00}_testresults.xml";
-                DotCoverCover(c => c
-                    .SetTargetExecutable(dotnetPath)
-                    .SetTargetWorkingDirectory(projectDirectory)
-                    .SetTargetArguments($"xunit -nobuild -xml {xUnitOutputPath.DoubleQuoteIfNeeded()}")
-                    .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
-                    .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
-                    .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot"));
+                foreach (var targetFramework in GetTestFrameworksForProjectFile(testProject))
+                {
+                    snapshotIndex++;
+                    string xUnitOutputPath = OutputDirectory / $"test_{snapshotIndex:00}_testresults-{targetFramework}.xml";
+                    DotCoverCover(c => c
+                        .SetTargetExecutable(dotnetPath)
+                        .SetTargetWorkingDirectory(projectDirectory)
+                        .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. --logger:xunit;LogFilePath={xUnitOutputPath.DoubleQuoteIfNeeded()}")
+                        .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
+                        .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
+                        .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot"));
+                }
             }
 
             PrependFrameworkToTestresults();
 
-            var snapshots = testProjects.Select((t, i) => OutputDirectory / $"coverage{i:00}.snapshot")
-                .Select(p => p.ToString())
+            var snapshots = GlobFiles(OutputDirectory, "*.snapshot")
                 .Aggregate((c, n) => c + ";" + n);
 
             DotCoverMerge(c => c
