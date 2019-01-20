@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.1.0:
+- The `Dangl.Data.Shared.AspNetCore` package was updated to ASP.NET Core 2.2
+
 ## v1.0.10:
 - Add `CompressedRequestMiddleware` to support clients sending compressed request bodies
 
