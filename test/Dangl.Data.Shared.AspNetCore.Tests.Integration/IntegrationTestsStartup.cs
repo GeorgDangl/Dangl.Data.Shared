@@ -13,7 +13,8 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             {
                 mvcSetup.Filters.Add(typeof(ModelStateValidationFilter));
                 mvcSetup.Filters.Add(typeof(RequiredFormFileValidationFilter));
-            });
+            })
+            .AddApplicationPart(typeof(IntegrationTestsStartup).Assembly);
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

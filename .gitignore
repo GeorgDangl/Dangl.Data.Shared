@@ -270,3 +270,5 @@ docs/docfx.console.**/*
 docs/index.md
 output/*
 
+
+test/Dangl\.Data\.Shared\.AspNetCore\.Tests\.Integration/Properties/launchSettings\.json

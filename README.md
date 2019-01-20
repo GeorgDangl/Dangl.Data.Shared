@@ -105,3 +105,42 @@ This should be called before other calls, like this:
         app.UseClientCompressionSupport();
         app.UseMvc();
     }
+
+## IUserLocaleService
+
+This service has a single method: `string GetUserLocale();` and should return the locale for the current Http
+request. The default implementation `UserLocaleService` will do the following:
+
+1. It must be initiated with a list of available, valid languages and a name for a cookie under which users can store their preffered locale
+2. For every request which has a locale set via the cookie, this locale is returned
+3. If no cookie is present or the locale in the cookie is not available, the `Accept-Language` Http header is parsed
+4. Otherwise, the first configured available locale is returned
+
+The `UserLocaleService` is added automatically when you use the `LocalizedSpaStaticFileExtensions`.
+
+## LocalizedSpaStaticFileExtensions
+
+The `LocalizedSpaStaticFileExtensions` can be used to serve localized Single Page Applications (SPAs). For example,
+a localized Angular application might generate these files in your `wwwroot` directory:
+
+    /dist/en/index.html
+    /dist/de/index.html
+
+To be able to serve these index files depending on the request of the user, the extensions detect the user
+language via the `IUserLocaleService` and serve the correct files.
+
+### Example
+
+First, configure the service:
+
+    services.AddLocalizedSpaStaticFiles(languageCookieName: ".MyApp.Locale",
+        availableLocales: new[] { "de", "en" },
+        spaRootPath: "dist");
+
+Then add this as the last action for the request pipeline:
+
+    // This serves localized SPA files from disk,
+    // e.g. from wwwroot/dist/en
+    app.UseLocalizedSpaStaticFiles("index.html");
+
+Please note: `IHttpContextAccessor` must be available via dependency injection
