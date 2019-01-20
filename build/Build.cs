@@ -1,6 +1,5 @@
 ﻿using Nuke.CoberturaConverter;
 using Nuke.Common.Git;
-using Nuke.Common.Tools.DocFx;
 using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
@@ -19,7 +18,8 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using static Nuke.CoberturaConverter.CoberturaConverterTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
-using static Nuke.Common.Tools.DocFx.DocFxTasks;
+using static Nuke.DocFX.DocFXTasks;
+using Nuke.DocFX;
 using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
@@ -30,6 +30,7 @@ using static Nuke.Common.Tooling.ProcessTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
+using Nuke.Common.ProjectModel;
 
 class Build : NukeBuild
 {
@@ -51,13 +52,17 @@ class Build : NukeBuild
     [Parameter] string MyGetApiKey;
     [Parameter] string NuGetApiKey;
     [Parameter] string DocuApiKey;
-    [Parameter] string DocuApiEndpoint;
+    [Parameter] string DocuBaseUrl;
     [Parameter] string GitHubAuthenticationToken;
 
-    string DocFxFile => SolutionDirectory / "docfx.json";
+    [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
-    // This is used to to infer which dotnet sdk version to use when generating DocFX metadata
-    string DocFxDotNetSdkVersion = "2.1.4";
+    [Solution("Dangl.Data.Shared.sln")] readonly Solution Solution;
+    AbsolutePath SolutionDirectory => Solution.Directory;
+    AbsolutePath OutputDirectory => SolutionDirectory / "output";
+    AbsolutePath SourceDirectory => SolutionDirectory / "src";
+
+    string DocFxFile => SolutionDirectory / "docfx.json";
     string ChangeLogFile => RootDirectory / "CHANGELOG.md";
 
     Target Clean => _ => _
@@ -72,16 +77,19 @@ class Build : NukeBuild
         .DependsOn(Clean)
         .Executes(() =>
         {
-            DotNetRestore(s => DefaultDotNetRestore);
+            DotNetRestore();
         });
 
     Target Compile => _ => _
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DotNetBuild(s => DefaultDotNetBuild
+            DotNetBuild(x => x
+                .SetConfiguration(Configuration)
+                .EnableNoRestore()
                 .SetFileVersion(GitVersion.GetNormalizedFileVersion())
-                .SetAssemblyVersion(GitVersion.AssemblySemVer));
+                .SetAssemblyVersion(GitVersion.AssemblySemVer)
+                .SetInformationalVersion(GitVersion.InformationalVersion));
         });
 
     Target Pack => _ => _
@@ -90,9 +98,14 @@ class Build : NukeBuild
         {
             var changeLog = GetCompleteChangeLog(ChangeLogFile)
                 .EscapeStringPropertyForMsBuild();
-            DotNetPack(s => DefaultDotNetPack
+            DotNetPack(x => x
+                .SetConfiguration(Configuration)
+                .SetPackageReleaseNotes(changeLog)
                 .SetDescription("Dangl.Data.Shared - www.dangl-it.com")
-                .SetPackageReleaseNotes(changeLog));
+                .SetTitle("Dangl.Data.Shared - www.dangl-it.com")
+                .EnableNoBuild()
+                .SetOutputDirectory(OutputDirectory)
+                .SetVersion(GitVersion.NuGetVersion));
         });
 
     Target Test => _ => _
@@ -206,12 +219,7 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            // So it uses a fixed, known version of MsBuild to generate the metadata. Otherwise,
-            // updates of dotnet or Visual Studio could introduce incompatibilities and generation failures
-            var dotnetPath = Path.GetDirectoryName(ToolPathResolver.GetPathExecutable("dotnet.exe"));
-            var msBuildPath = Path.Combine(dotnetPath, "sdk", DocFxDotNetSdkVersion, "MSBuild.dll");
-            SetVariable("MSBUILD_EXE_PATH", msBuildPath);
-            DocFxMetadata(DocFxFile, s => s.SetLogLevel(DocFxLogLevel.Warning));
+            DocFXMetadata(x => x.AddProjects(DocFxFile));
         });
 
     Target BuildDocumentation => _ => _
@@ -227,9 +235,7 @@ class Build : NukeBuild
 
             File.Copy(SolutionDirectory / "README.md", SolutionDirectory / "index.md");
 
-            DocFxBuild(DocFxFile, s => s
-                .ClearXRefMaps()
-                .SetLogLevel(DocFxLogLevel.Warning));
+            DocFXBuild(x => x.SetConfigFile(DocFxFile));
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "shared", true);
@@ -241,11 +247,11 @@ class Build : NukeBuild
         .DependsOn(Push) // To have a relation between pushed package version and published docs version
         .DependsOn(BuildDocumentation)
         .Requires(() => DocuApiKey)
-        .Requires(() => DocuApiEndpoint)
+        .Requires(() => DocuBaseUrl)
         .Executes(() =>
         {
             WebDocu(s => s
-                .SetDocuApiEndpoint(DocuApiEndpoint)
+                .SetDocuBaseUrl(DocuBaseUrl)
                 .SetDocuApiKey(DocuApiKey)
                 .SetSourceDirectory(OutputDirectory)
                 .SetVersion(GitVersion.NuGetVersion)
@@ -256,7 +262,7 @@ class Build : NukeBuild
         .DependsOn(Pack)
         .Requires(() => GitHubAuthenticationToken)
         .OnlyWhen(() => GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
-        .Executes(() =>
+        .Executes(async () =>
         {
             var releaseTag = $"v{GitVersion.MajorMinorPatch}";
 
@@ -268,17 +274,14 @@ class Build : NukeBuild
             var repositoryInfo = GetGitHubRepositoryInfo(GitRepository);
             var nuGetPackages = GlobFiles(OutputDirectory, "*.nupkg").NotEmpty().ToArray();
 
-            PublishRelease(new GitHubReleaseSettings()
+            await PublishRelease(x => x
                     .SetArtifactPaths(nuGetPackages)
                     .SetCommitSha(GitVersion.Sha)
                     .SetReleaseNotes(completeChangeLog)
                     .SetRepositoryName(repositoryInfo.repositoryName)
                     .SetRepositoryOwner(repositoryInfo.gitHubOwner)
                     .SetTag(releaseTag)
-                    .SetToken(GitHubAuthenticationToken))
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+                    .SetToken(GitHubAuthenticationToken));
         });
 
     void PrependFrameworkToTestresults()
