@@ -105,3 +105,14 @@ This should be called before other calls, like this:
         app.UseClientCompressionSupport();
         app.UseMvc();
     }
+
+## Single Page Application Utilities
+
+The `Dangl.Data.Shared.AspNetCore.SpaUtilities` namespace contains utilities to work with Single Page Applications (SPAs).
+
+### Non-Localized SPAs
+
+The `UseSpaStaticFile(this IApplicationBuilder app, string pathToIndex)` extensiion can be used to support regular Single Page Applications that have a single entry point.
+It works by redirecting all requests that are not matched by anything else to the entry point on the SPA. The `pathToIndex` should be absolute from the
+`wwwroot` folder, e.g. `/dist/index.html`.  
+**It must be called as the last action in your app pipeline.**
