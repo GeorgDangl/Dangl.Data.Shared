@@ -31,25 +31,29 @@ using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
 using Nuke.Common.ProjectModel;
+using Nuke.Azure.KeyVault;
 
 class Build : NukeBuild
 {
     // Console application entry. Also defines the default target.
     public static int Main() => Execute<Build>(x => x.Compile);
 
-    // Auto-injection fields:
+    [KeyVaultSettings(
+        BaseUrlParameterName = nameof(KeyVaultBaseUrl),
+        ClientIdParameterName = nameof(KeyVaultClientId),
+        ClientSecretParameterName = nameof(KeyVaultClientSecret))]
+    readonly KeyVaultSettings KeyVaultSettings;
 
+    [Parameter] string KeyVaultBaseUrl;
+    [Parameter] string KeyVaultClientId;
+    [Parameter] string KeyVaultClientSecret;
     [GitVersion] readonly GitVersion GitVersion;
-    // Semantic versioning. Must have 'GitVersion.CommandLine' referenced.
-
     [GitRepository] readonly GitRepository GitRepository;
-    //  Parses origin, branch name and head from git config.
 
-    // [Parameter] readonly string MyGetApiKey;
-    // Returns command-line arguments and environment variables.
 
-    [Parameter] string MyGetSource;
-    [Parameter] string MyGetApiKey;
+    [KeyVaultSecret] string PublicMyGetSource;
+    [KeyVaultSecret] string PublicMyGetApiKey;
+
     [Parameter] string NuGetApiKey;
     [Parameter] string DocuApiKey;
     [Parameter] string DocuBaseUrl;
@@ -189,8 +193,8 @@ class Build : NukeBuild
 
     Target Push => _ => _
         .DependsOn(Pack)
-        .Requires(() => MyGetSource)
-        .Requires(() => MyGetApiKey)
+        .Requires(() => PublicMyGetSource)
+        .Requires(() => PublicMyGetApiKey)
         .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
         .Executes(() =>
@@ -201,8 +205,8 @@ class Build : NukeBuild
                 {
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
-                        .SetSource(MyGetSource)
-                        .SetApiKey(MyGetApiKey));
+                        .SetSource(PublicMyGetSource)
+                        .SetApiKey(PublicMyGetApiKey));
 
                     if (GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
                     {
