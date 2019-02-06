@@ -144,3 +144,29 @@ Then add this as the last action for the request pipeline:
     app.UseLocalizedSpaStaticFiles("index.html");
 
 Please note: `IHttpContextAccessor` must be available via dependency injection
+
+## EmptyFormFileValidator
+
+The `EmptyFormFileValidator` class is used to generate an invalid `ModelState` in an ASP.NET Core Request pipeline if a parameter is of type `IFormFile` (or derived) but has a `Length` of zero bytes.
+
+### Example
+
+Simply configure it in your MVC setup:
+
+```csharp
+using Dangl.Data.Shared.AspNetCore.Validation;
+
+namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
+{
+    public class Startup
+    {
+        public virtual void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc(mvcSetup =>
+            {
+                mvcSetup.AddEmptyFormFileValidator();
+            });
+        }
+    }
+}
+```

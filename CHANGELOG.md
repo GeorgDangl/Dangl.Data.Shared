@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.1.1:
+- Add `EmptyFormFileValidator` with extensions to support the generation of an invalid `ModelState` if a parameter of type `IFormFile` (or derived) is passed with a `Length` of zero bytes
+
 ## v1.1.0:
 - The `Dangl.Data.Shared.AspNetCore` package was updated to ASP.NET Core 2.2
 - Add `LocalizedSpaStaticFileExtensions` to help serving localized Single Page Applications (SPAs)
