@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Dangl.Data.Shared.AspNetCore.Validation;
 
 namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
 {
@@ -13,6 +14,7 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             {
                 mvcSetup.Filters.Add(typeof(ModelStateValidationFilter));
                 mvcSetup.Filters.Add(typeof(RequiredFormFileValidationFilter));
+                mvcSetup.AddEmptyFormFileValidator();
             })
             .AddApplicationPart(typeof(IntegrationTestsStartup).Assembly);
         }
