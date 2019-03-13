@@ -1,9 +1,9 @@
-﻿using Dangl.Data.Shared.AspNetCore.Json;
+﻿using Dangl.Data.Shared.Json;
 using Newtonsoft.Json;
 using System;
 using Xunit;
 
-namespace Dangl.Data.Shared.AspNetCore.Tests.Json
+namespace Dangl.Data.Shared.Tests.Json
 {
     public class DefaultValuesContractResolverTests
     {

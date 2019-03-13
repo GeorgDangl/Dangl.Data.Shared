@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Dangl.Data.Shared.AspNetCore.Json
+namespace Dangl.Data.Shared.Json
 {
     /// <summary>
     /// Extensions to configure Json serialization options
