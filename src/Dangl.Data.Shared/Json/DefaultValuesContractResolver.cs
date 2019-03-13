@@ -3,7 +3,7 @@ using Newtonsoft.Json.Serialization;
 using System;
 using System.Reflection;
 
-namespace Dangl.Data.Shared.AspNetCore.Json
+namespace Dangl.Data.Shared.Json
 {
     /// <summary>
     /// This contract resolver ignores default values for DateTime, DateTimeOffset and Guid when serializing

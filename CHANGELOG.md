@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.2.0:
+- Move JsonExtensions from Dangl.Data.Shared.AspNetCore to Dangl.Data.Shared
+
 ## v1.1.1:
 - Add `EmptyFormFileValidator` with extensions to support the generation of an invalid `ModelState` if a parameter of type `IFormFile` (or derived) is passed with a `Length` of zero bytes
 
