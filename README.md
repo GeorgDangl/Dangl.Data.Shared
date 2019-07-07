@@ -82,6 +82,14 @@ And the `IAuthorizationHandler` must be configured in the services:
 services.AddTransient<IAuthorizationHandler, ClaimBasedAuthorizationRequirementHandler<ConversionRequirement>>();
 ```
 
+Finally, to use this policy in your controllers or actions, you need to add an `Authorize` attribute with the policy name:
+
+```csharp
+[Authorize(Policy = AvaCloudConstants.CONVERSION_POLICY_NAME)]
+[Route("api/[Controller]")]
+public class CategoriesController : Controller
+```
+
 ## HttpHeadRequestMiddleware
 
 This middleware transforms incoming Http `HEAD` requests internally to `GET` requests so that they can hit their intended target action.
