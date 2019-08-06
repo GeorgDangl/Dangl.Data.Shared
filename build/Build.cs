@@ -73,8 +73,8 @@ class Build : NukeBuild
     Target Clean => _ => _
         .Executes(() =>
         {
-            DeleteDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
-            DeleteDirectories(GlobDirectories(SolutionDirectory / "test", "**/bin", "**/obj"));
+            GlobDirectories(SourceDirectory, "**/bin", "**/obj").ForEach(DeleteDirectory);
+            GlobDirectories(SolutionDirectory / "test", "**/bin", "**/obj").ForEach(DeleteDirectory);
             EnsureCleanDirectory(OutputDirectory);
         });
 
@@ -117,23 +117,26 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj");
-            foreach (var testProject in testProjects)
+            var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj");
+            var testRun = 1;
+
+            try
             {
-                foreach (var targetFramework in GetTestFrameworksForProjectFile(testProject))
-                {
-                    var projectDirectory = Path.GetDirectoryName(testProject);
-                    var projectName = Path.GetFileNameWithoutExtension(testProject);
-
-                    DotNetTest(s => s
-                        .SetWorkingDirectory(projectDirectory)
-                        .SetNoBuild(true)
-                        .SetFramework(targetFramework)
-                        .SetLogger($"trx;LogFileName={OutputDirectory / projectName}_testresults-{targetFramework}.xml"));
-                }
+                DotNetTest(x => x
+                    .SetNoBuild(true)
+                    .SetTestAdapterPath(".")
+                    .CombineWith(cc => testProjects
+                        .SelectMany(testProject => GetTestFrameworksForProjectFile(testProject)
+                            .Select(targetFramework => cc
+                                .SetFramework(targetFramework)
+                                .SetWorkingDirectory(Path.GetDirectoryName(testProject))
+                                .SetLogger($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
+                                degreeOfParallelism: Environment.ProcessorCount);
             }
-
-            PrependFrameworkToTestresults();
+            finally
+            {
+                PrependFrameworkToTestresults();
+            }
         });
 
     IEnumerable<string> GetTestFrameworksForProjectFile(string projectFile)
@@ -141,7 +144,8 @@ class Build : NukeBuild
         var targetFrameworks = XmlPeek(projectFile, "//Project/PropertyGroup//TargetFrameworks")
             .Concat(XmlPeek(projectFile, "//Project/PropertyGroup//TargetFramework"))
             .Distinct()
-            .SelectMany(f => f.Split(';'));
+            .SelectMany(f => f.Split(';'))
+            .Distinct();
         return targetFrameworks;
     }
 
@@ -149,29 +153,34 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj").ToList();
-            var snapshotIndex = 0;
-            for (var i = 0; i < testProjects.Count; i++)
-            {
-                var testProject = testProjects[i];
-                var projectDirectory = Path.GetDirectoryName(testProject);
-                // This is so that the global dotnet is used instead of the one that comes with NUKE
-                var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
-                foreach (var targetFramework in GetTestFrameworksForProjectFile(testProject))
-                {
-                    snapshotIndex++;
-                    string xUnitOutputPath = OutputDirectory / $"test_{snapshotIndex:00}_testresults-{targetFramework}.xml";
-                    DotCoverCover(c => c
-                        .SetTargetExecutable(dotnetPath)
-                        .SetTargetWorkingDirectory(projectDirectory)
-                        .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. --logger:xunit;LogFilePath={xUnitOutputPath.DoubleQuoteIfNeeded()}")
-                        .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
-                        .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
-                        .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot"));
-                }
-            }
+            var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj").ToList();
+            var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
 
-            PrependFrameworkToTestresults();
+            var snapshotIndex = 0;
+            try
+            {
+                DotCoverCover(c => c
+                    .SetTargetExecutable(dotnetPath)
+                    .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
+                    .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
+                    .CombineWith(cc => testProjects.SelectMany(testProject => {
+                        var projectDirectory = Path.GetDirectoryName(testProject);
+                        var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
+                        return targetFrameworks.Select(targetFramework =>
+                        {
+                            snapshotIndex++;
+                            return cc
+                                .SetTargetWorkingDirectory(projectDirectory)
+                                .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot")
+                                .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. \"--logger:xunit;LogFilePath={OutputDirectory}/{snapshotIndex}_testresults-{targetFramework}.xml\"");
+                        });
+                    })), degreeOfParallelism: System.Environment.ProcessorCount,
+                    completeOnFailure: true);
+            }
+            finally
+            {
+                PrependFrameworkToTestresults();
+            }
 
             var snapshots = GlobFiles(OutputDirectory, "*.snapshot")
                 .Aggregate((c, n) => c + ";" + n);
@@ -264,9 +273,12 @@ class Build : NukeBuild
         .Requires(() => DocuBaseUrl)
         .Executes(() =>
         {
+            var changeLog = GetCompleteChangeLog(ChangeLogFile);
+
             WebDocu(s => s
                 .SetDocuBaseUrl(DocuBaseUrl)
                 .SetDocuApiKey(DocuApiKey)
+                .SetMarkdownChangelog(changeLog)
                 .SetSourceDirectory(OutputDirectory)
                 .SetVersion(GitVersion.NuGetVersion)
             );
@@ -275,7 +287,7 @@ class Build : NukeBuild
     Target PublishGitHubRelease => _ => _
         .DependsOn(Pack)
         .Requires(() => GitHubAuthenticationToken)
-        .OnlyWhen(() => GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
+        .OnlyWhenDynamic(() => GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
         .Executes(async () =>
         {
             var releaseTag = $"v{GitVersion.MajorMinorPatch}";
@@ -300,24 +312,52 @@ class Build : NukeBuild
 
     void PrependFrameworkToTestresults()
     {
-        var testResults = GlobFiles(OutputDirectory, "*testresults-*.xml");
+        var testResults = GlobFiles(OutputDirectory, "*testresults*.xml").ToList();
         foreach (var testResultFile in testResults)
         {
             var frameworkName = GetFrameworkNameFromFilename(testResultFile);
             var xDoc = XDocument.Load(testResultFile);
 
-            foreach (var testType in ((IEnumerable) xDoc.XPathEvaluate("//test/@type")).OfType<XAttribute>())
+            foreach (var testType in ((IEnumerable)xDoc.XPathEvaluate("//test/@type")).OfType<XAttribute>())
             {
                 testType.Value = frameworkName + "+" + testType.Value;
             }
 
-            foreach (var testName in ((IEnumerable) xDoc.XPathEvaluate("//test/@name")).OfType<XAttribute>())
+            foreach (var testName in ((IEnumerable)xDoc.XPathEvaluate("//test/@name")).OfType<XAttribute>())
             {
                 testName.Value = frameworkName + "+" + testName.Value;
             }
 
             xDoc.Save(testResultFile);
         }
+
+        // Merge all the results to a single file
+        // The "run-time" attributes of the single assemblies is ensured to be unique for each single assembly by this test,
+        // since in Jenkins, the format is internally converted to JUnit. Aterwards, results with the same timestamps are
+        // ignored. See here for how the code is translated to JUnit format by the Jenkins plugin:
+        // https://github.com/jenkinsci/xunit-plugin/blob/d970c50a0501f59b303cffbfb9230ba977ce2d5a/src/main/resources/org/jenkinsci/plugins/xunit/types/xunitdotnet-2.0-to-junit.xsl#L75-L79
+        var firstXdoc = XDocument.Load(testResults[0]);
+        var runtime = DateTime.Now;
+        var firstAssemblyNodes = firstXdoc.Root.Elements().Where(e => e.Name.LocalName == "assembly");
+        foreach (var assemblyNode in firstAssemblyNodes)
+        {
+            assemblyNode.SetAttributeValue("run-time", $"{runtime:HH:mm:ss}");
+            runtime = runtime.AddSeconds(1);
+        }
+        for (var i = 1; i < testResults.Count; i++)
+        {
+            var xDoc = XDocument.Load(testResults[i]);
+            var assemblyNodes = xDoc.Root.Elements().Where(e => e.Name.LocalName == "assembly");
+            foreach (var assemblyNode in assemblyNodes)
+            {
+                assemblyNode.SetAttributeValue("run-time", $"{runtime:HH:mm:ss}");
+                runtime = runtime.AddSeconds(1);
+            }
+            firstXdoc.Root.Add(assemblyNodes);
+        }
+
+        firstXdoc.Save(OutputDirectory / "testresults.xml");
+        testResults.ForEach(DeleteFile);
     }
 
     string GetFrameworkNameFromFilename(string filename)
