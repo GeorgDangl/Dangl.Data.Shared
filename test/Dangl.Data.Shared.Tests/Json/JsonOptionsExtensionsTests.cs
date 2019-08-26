@@ -8,6 +8,27 @@ namespace Dangl.Data.Shared.Tests.Json
     public class JsonOptionsExtensionsTests
     {
         [Fact]
+        public void SerializedWithDefaultCase()
+        {
+            var jsonOptions = new JsonSerializerSettings();
+            jsonOptions.ConfigureDefaultJsonSerializerSettings(false);
+            var input = new DtoTestClass { EnumProp = TestEnum.Two };
+            var serialized = JsonConvert.SerializeObject(input, jsonOptions);
+            Assert.Contains("\"EnumProp\"", serialized);
+
+        }
+
+        [Fact]
+        public void SerializesWithCamelCase()
+        {
+            var jsonOptions = new JsonSerializerSettings();
+            jsonOptions.ConfigureDefaultJsonSerializerSettings(true);
+            var input = new DtoTestClass { EnumProp = TestEnum.Two };
+            var serialized = JsonConvert.SerializeObject(input, jsonOptions);
+            Assert.Contains("\"enumProp\"", serialized);
+        }
+
+        [Fact]
         public void SerializesEnumAsString_01()
         {
             var jsonOptions = new JsonSerializerSettings();

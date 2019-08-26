@@ -16,9 +16,28 @@ namespace Dangl.Data.Shared.Json
         /// <param name="jsonSerializerSettings"></param>
         public static void ConfigureDefaultJsonSerializerSettings(this JsonSerializerSettings jsonSerializerSettings)
         {
+            jsonSerializerSettings.ConfigureDefaultJsonSerializerSettings(false);
+        }
+
+        /// <summary>
+        /// This enables the <see cref="StringEnumConverter"/>, sets <see cref="NullValueHandling"/> to ignore,
+        /// and adds the <see cref="DefaultValuesContractResolver"/> to ignore default values for certain types, e.g.
+        /// Guid.Empty, DateTime.MinValue and DateTimeOffset.MinValue
+        /// </summary>
+        /// <param name="jsonSerializerSettings"></param>
+        /// <param name="useCamelCaseContractResolver">If this is set to true, property names will be serialized using CamelCase</param>
+        public static void ConfigureDefaultJsonSerializerSettings(this JsonSerializerSettings jsonSerializerSettings, bool useCamelCaseContractResolver)
+        {
             jsonSerializerSettings.Converters.Add(new StringEnumConverter());
             jsonSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-            jsonSerializerSettings.ContractResolver = new DefaultValuesContractResolver();
+            if (useCamelCaseContractResolver)
+            {
+                jsonSerializerSettings.ContractResolver = new CamelCaseDefaultValuesContractResolver();
+            }
+            else
+            {
+                jsonSerializerSettings.ContractResolver = new DefaultValuesContractResolver();
+            }
         }
     }
 }
