@@ -55,8 +55,7 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             {
                 await SendFormFileRequest(false);
                 Assert.False(_response.IsSuccessStatusCode);
-                Assert.Single(_responseApiError.Errors);
-                Assert.Equal(2, _responseApiError.Errors.First().Value.Count());
+                Assert.NotEmpty(_responseApiError.Errors);
             }
         }
 

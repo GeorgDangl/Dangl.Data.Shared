@@ -19,11 +19,24 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             .AddApplicationPart(typeof(IntegrationTestsStartup).Assembly);
         }
 
+#if NETCORE3
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
+        {
+            app.UseClientCompressionSupport();
+            app.UseHttpHeadToGetTransform();
+            app.UseRouting();
+            app.UseEndpoints(endpoints => {
+                endpoints.MapControllers();
+            });
+        }
+#else
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
             app.UseClientCompressionSupport();
             app.UseHttpHeadToGetTransform();
             app.UseMvc();
         }
+#endif
+
     }
 }

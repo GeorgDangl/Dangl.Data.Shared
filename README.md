@@ -102,6 +102,16 @@ This should be called before the `AddMvc()` call, like this:
         app.UseMvc();
     }
 
+If you're using **ASP.NET Core 3.0** or later, you should use the middleware before the call to the routing middleware:
+
+```csharp
+app.UseHttpHeadToGetTransform();
+app.UseRouting();
+app.UseEndpoints(endpoints => {
+    endpoints.MapControllers();
+});
+```
+
 ## CompressedRequestMiddleware
 
 This middleware supports clients that send their requests either `gzip` or `deflate` compressed. This can be used when endpoints

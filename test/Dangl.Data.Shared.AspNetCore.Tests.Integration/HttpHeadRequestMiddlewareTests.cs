@@ -26,7 +26,11 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
         public async Task HttpHeadRequestReturnsEmptyBody()
         {
             await MakeRequest();
-            Assert.Equal(0, (await _response.Content.ReadAsStreamAsync()).Length);
+            var responseStream = await _response.Content.ReadAsStreamAsync();
+            // Stream.Length is not supported in .NET Core 3.0 TestHost
+            var memStream = new System.IO.MemoryStream();
+            await responseStream.CopyToAsync(memStream);
+            Assert.Equal(0, memStream.Length);
         }
 
         [Fact]
