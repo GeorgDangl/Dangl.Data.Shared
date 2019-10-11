@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.4.0:
+- Add `netstandard2.1` and `netcoreapp3.0` targets
+
 ## v1.3.1:
 - Add `CamelCaseDefaultValuesContractResolver`
 
