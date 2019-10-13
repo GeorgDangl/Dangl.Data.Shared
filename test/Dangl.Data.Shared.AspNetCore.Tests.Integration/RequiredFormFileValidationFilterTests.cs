@@ -26,6 +26,26 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             }
         }
 
+        public class RequiredFormFileInModel : TestServerFormFileBase
+        {
+            protected override string GetUrl() => "RequiredFormFileInModel";
+
+            [Fact]
+            public async Task NoApiErrorForCorrectModel()
+            {
+                await SendFormFileRequest(true);
+                Assert.True(_response.IsSuccessStatusCode);
+            }
+
+            [Fact]
+            public async Task ApiErrorForMissingModel()
+            {
+                await SendFormFileRequest(false);
+                Assert.False(_response.IsSuccessStatusCode);
+                Assert.NotEmpty(_responseApiError.Errors);
+            }
+        }
+
         public class MultipleRequiredFormFile : TestServerFormFileBase
         {
             protected override string GetUrl() => "MultipleRequiredFormFile";
@@ -35,8 +55,7 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             {
                 await SendFormFileRequest(false);
                 Assert.False(_response.IsSuccessStatusCode);
-                Assert.Single(_responseApiError.Errors);
-                Assert.Equal(2, _responseApiError.Errors.First().Value.Count());
+                Assert.NotEmpty(_responseApiError.Errors);
             }
         }
 

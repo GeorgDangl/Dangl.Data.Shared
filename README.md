@@ -25,7 +25,7 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
 
 ## RequiredFormFileValidationFilter
 The `RequiredFormFileValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the invoked
-Controller action as paramaters of type `IFormFile` that are annotated with `[Required]` but have no value bound.
+Controller action has parameters of type `IFormFile` that are annotated with `[Required]` but have no value bound.
 
 For example, the following action makes use of the filter:
 
@@ -101,6 +101,16 @@ This should be called before the `AddMvc()` call, like this:
         app.UseHttpHeadToGetTransform();
         app.UseMvc();
     }
+
+If you're using **ASP.NET Core 3.0** or later, you should use the middleware before the call to the routing middleware:
+
+```csharp
+app.UseHttpHeadToGetTransform();
+app.UseRouting();
+app.UseEndpoints(endpoints => {
+    endpoints.MapControllers();
+});
+```
 
 ## CompressedRequestMiddleware
 

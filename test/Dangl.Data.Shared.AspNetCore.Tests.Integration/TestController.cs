@@ -18,6 +18,23 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             return Ok();
         }
 
+        [HttpPost("RequiredFormFileInModel")]
+        public IActionResult RequiredFormFileInModel([Required]FormFileUploadModel model)
+        {
+            if (model?.formFile == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
+
+        public class FormFileUploadModel
+        {
+            [Required]
+            public IFormFile formFile { get; set; }
+        }
+
         [HttpPost("FormFile")]
         public IActionResult FormFile(IFormFile formFile)
         {
