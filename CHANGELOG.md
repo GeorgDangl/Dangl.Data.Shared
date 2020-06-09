@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.5.0:
+- Drop `netcoreapp3.0` target and add `netcoreapp3.1` target
+
 ## v1.4.0:
 - Add `netstandard2.1` and `netcoreapp3.0` targets
 
