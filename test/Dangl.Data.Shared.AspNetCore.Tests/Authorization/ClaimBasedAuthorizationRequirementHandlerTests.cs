@@ -100,6 +100,15 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Authorization
         }
 
         [Fact]
+        public async Task IndicatesSuccessForUserWithClaimValueFalseAndTrue()
+        {
+            _userClaimsToReturn.Add(new Claim(_requiredClaimName, "false"));
+            _userClaimsToReturn.Add(new Claim(_requiredClaimName, "true"));
+            await HandleAsync();
+            Assert.True(_context.HasSucceeded);
+        }
+
+        [Fact]
         public async Task IndicatesSuccessForUserWithClaimValueInFuture()
         {
             _userClaimsToReturn.Add(new Claim(_requiredClaimName, DateTime.UtcNow.AddHours(1).ToString("o")));
@@ -158,6 +167,16 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Authorization
             _userClaimsToReturn.Add(new Claim(_optionalPrefix + _requiredClaimName, "2018-04-30T17:48:40+00:00"));
             await HandleAsync();
             Assert.False(_context.HasSucceeded);
+        }
+
+        [Fact]
+        public async Task IndicatesSuccessForUserWithClaimValueBeforeNowWithClaimPrefixAndForClaimWithValidValue()
+        {
+            _userClaimsToReturn.Add(new Claim(_optionalPrefix + _requiredClaimName, "2018-04-30T17:48:40+00:00"));
+            var yearToUse = $"{DateTime.Now.Year + 1:0000}";
+            _userClaimsToReturn.Add(new Claim(_requiredClaimName, $"\"{yearToUse}-08-08T09:02:15.5732531Z\""));
+            await HandleAsync();
+            Assert.True(_context.HasSucceeded);
         }
 
         [Fact]
