@@ -51,7 +51,7 @@ The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to 
 ## JsonOptionsExtensions
 
 The `JsonOptionsExtensions` class configures default Json options for the Newtonsoft Json serializer.
-It ignores null values, uses the `StringEnumConverter` and ignores default values for `Guid`, `DateTime`
+It ignores null values, uses the `EmptyEnumDeserializer` (derived from `StringEnumConverter` and maps empty or null enum values to their default value), the `GuidStringDeserializer` to deserialize empty or null Guid values to an empty guid and ignores default values for `Guid`, `DateTime`
 and `DateTimeOffset`.
 
 ## IClaimBasedAuthorizationRequirement
