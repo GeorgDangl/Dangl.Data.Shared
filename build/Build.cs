@@ -18,8 +18,8 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using static Nuke.CoberturaConverter.CoberturaConverterTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
-using static Nuke.DocFX.DocFXTasks;
-using Nuke.DocFX;
+using static Nuke.Common.Tools.DocFX.DocFXTasks;
+using Nuke.Common.Tools.DocFX;
 using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
@@ -31,9 +31,10 @@ using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
 using Nuke.Common.ProjectModel;
-using Nuke.Azure.KeyVault;
 using System.Collections.Generic;
 using static Nuke.Common.IO.XmlTasks;
+using Nuke.Common.Tools.AzureKeyVault.Attributes;
+using Nuke.Common.IO;
 
 class Build : NukeBuild
 {
@@ -49,7 +50,7 @@ class Build : NukeBuild
     [Parameter] string KeyVaultBaseUrl;
     [Parameter] string KeyVaultClientId;
     [Parameter] string KeyVaultClientSecret;
-    [GitVersion] readonly GitVersion GitVersion;
+    [GitVersion(Framework = "netcoreapp3.1")] readonly GitVersion GitVersion;
     [GitRepository] readonly GitRepository GitRepository;
 
 
@@ -92,7 +93,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
-                .SetFileVersion(GitVersion.GetNormalizedFileVersion())
+                .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion(GitVersion.AssemblySemVer)
                 .SetInformationalVersion(GitVersion.InformationalVersion));
         });
@@ -129,7 +130,7 @@ class Build : NukeBuild
                         .SelectMany(testProject => GetTestFrameworksForProjectFile(testProject)
                             .Select(targetFramework => cc
                                 .SetFramework(targetFramework)
-                                .SetWorkingDirectory(Path.GetDirectoryName(testProject))
+                                .SetProcessWorkingDirectory(Path.GetDirectoryName(testProject))
                                 .SetLogger($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
                                 degreeOfParallelism: Environment.ProcessorCount);
             }
@@ -196,6 +197,7 @@ class Build : NukeBuild
 
             // This is the report that's pretty and visualized in Jenkins
             ReportGenerator(c => c
+                .SetFramework("netcoreapp3.0")
                 .SetReports(OutputDirectory / "coverage.xml")
                 .SetTargetDirectory(OutputDirectory / "CoverageReport"));
 
