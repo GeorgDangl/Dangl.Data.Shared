@@ -2,6 +2,10 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.7.0:
+- The `CamelCaseDefaultValuesContractResolver` was changed to now preserve the casing for keys in dictionaries
+- Drop tests for `netcoreapp2.2` and add tests for `netcoreapp2.1`
+
 ## v1.6.0:
 - Added the `EmptyEnumDeserializer` and the `GuidStringDeserializer`. Both these classes are used to deserialize either Guids or Enums from null values or empty strings and will return the default values for them, e.g. `Guid.Empty`. They are automatically activated when using `ConfigureDefaultJsonSerializerSettings`
 

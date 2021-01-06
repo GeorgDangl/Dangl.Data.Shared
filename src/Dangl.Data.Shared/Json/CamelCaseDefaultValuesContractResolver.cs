@@ -6,7 +6,8 @@ using System.Reflection;
 namespace Dangl.Data.Shared.Json
 {
     /// <summary>
-    /// This contract resolver ignores default values for DateTime, DateTimeOffset and Guid when serializing
+    /// This contract resolver ignores default values for DateTime, DateTimeOffset and Guid when serializing. Additionally, it preserves
+    /// the exact casing in keys for dictionaries.
     /// </summary>
     public class CamelCaseDefaultValuesContractResolver : CamelCasePropertyNamesContractResolver
     {
@@ -37,6 +38,17 @@ namespace Dangl.Data.Shared.Json
             }
 
             return prop;
+        }
+
+        /// <summary>
+        /// This just returns the original key, no transformation is applied.
+        /// </summary>
+        /// <param name="dictionaryKey"></param>
+        /// <returns></returns>
+        protected override string ResolveDictionaryKey(string dictionaryKey)
+        {
+            // There should be no transofmration for dictionary keys
+            return dictionaryKey;
         }
     }
 }
