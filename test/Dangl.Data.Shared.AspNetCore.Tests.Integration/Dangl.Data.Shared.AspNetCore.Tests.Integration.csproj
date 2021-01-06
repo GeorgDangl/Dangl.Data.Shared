@@ -6,12 +6,12 @@
     <DefineConstants Condition="'$(TargetFramework)'=='netcoreapp3.1'">NETCORE3</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.2'">
-    <PackageReference Condition="'$(TargetFramework)'=='netcoreapp2.2'" Include="Microsoft.AspNetCore.All" />
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp2.1'">
+    <PackageReference Condition="'$(TargetFramework)'=='netcoreapp2.1'" Include="Microsoft.AspNetCore.All" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Condition="'$(TargetFramework)'=='netcoreapp2.2'" Include="Microsoft.AspNetCore.TestHost" Version="2.2.0" />
+    <PackageReference Condition="'$(TargetFramework)'=='netcoreapp2.1'" Include="Microsoft.AspNetCore.TestHost" Version="2.1.5" />
     <PackageReference Condition="'$(TargetFramework)'=='netcoreapp3.1'" Include="Microsoft.AspNetCore.TestHost" Version="3.1.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
     <PackageReference Include="xunit" Version="2.4.1" />
