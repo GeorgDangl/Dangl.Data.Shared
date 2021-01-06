@@ -1,6 +1,7 @@
 ﻿using Dangl.Data.Shared.Json;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Dangl.Data.Shared.Tests.Json
@@ -74,6 +75,42 @@ namespace Dangl.Data.Shared.Tests.Json
             var serialized = GetSerializedJson(input);
             Assert.DoesNotContain("GuidProp", serialized);
             Assert.DoesNotContain("guidProp", serialized);
+        }
+
+        [Fact]
+        public void KeepsKeysInOriginalCasingInDictionary()
+        {
+            var src = new Dictionary<string, string>();
+            src["First"] = "ValueFirst";
+            src["Second"] = "ValueSecond";
+            src["third"] = "ValueThird";
+
+            var serialized = GetSerializedJson(src);
+
+            Assert.Contains("\"First\"", serialized);
+            Assert.DoesNotContain("\"first\"", serialized);
+            Assert.Contains("\"Second\"", serialized);
+            Assert.DoesNotContain("\"second\"", serialized);
+            Assert.Contains("\"third\"", serialized);
+            Assert.DoesNotContain("\"Third\"", serialized);
+        }
+
+        [Fact]
+        public void KeepsKeysInOriginalCasingInObservableDictionary()
+        {
+            var src = new ObservableDictionary<string, string>();
+            src["First"] = "ValueFirst";
+            src["Second"] = "ValueSecond";
+            src["third"] = "ValueThird";
+
+            var serialized = GetSerializedJson(src);
+
+            Assert.Contains("\"First\"", serialized);
+            Assert.DoesNotContain("\"first\"", serialized);
+            Assert.Contains("\"Second\"", serialized);
+            Assert.DoesNotContain("\"second\"", serialized);
+            Assert.Contains("\"third\"", serialized);
+            Assert.DoesNotContain("\"Third\"", serialized);
         }
 
         private string GetSerializedJson(object input)
