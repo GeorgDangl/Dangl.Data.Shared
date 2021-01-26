@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.9.0:
+- Added a new generic overload `ApiError<TError>`
+
 ## v1.8.0:
 - Added a new generic overload `RepositoryResult<TResult, TError>`
 

@@ -75,4 +75,73 @@ namespace Dangl.Data.Shared
         /// </summary>
         public IDictionary<string, string[]> Errors { get; set; }
     }
+
+    /// <summary>
+    /// Data transfer class to convey api errors with a typed error result
+    /// </summary>
+    public class ApiError<TError> : ApiError
+    {
+        // For Json deserialization
+        private ApiError() : base() { }
+
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        public ApiError(TError error)
+            : base()
+        {
+            Error = error;
+        }
+
+        /// <summary>
+        /// Outputs an error in the form of { "Message": "Error" }
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="error"></param>
+        public ApiError(string message, TError error)
+            : base(message)
+        {
+            Error = error;
+        }
+
+        /// <summary>
+        /// Outputs all errors
+        /// </summary>
+        /// <param name="errors"></param>
+        /// <param name="error"></param>
+        public ApiError(IDictionary<string, string> errors, TError error)
+            : base(errors)
+        {
+            if (errors == null)
+            {
+                throw new ArgumentNullException(nameof(errors));
+            }
+            var dict = new Dictionary<string, string[]>();
+            foreach (var entry in errors)
+            {
+                dict.Add(entry.Key, new[] { entry.Value });
+            }
+            Errors = dict;
+            SetUnknownErrorIfNoErrorsSet();
+            Error = error;
+        }
+
+        /// <summary>
+        /// Outputs all errors
+        /// </summary>
+        /// <param name="errors"></param>
+        /// <param name="error"></param>
+        public ApiError(IDictionary<string, string[]> errors, TError error)
+            : base(errors)
+        {
+            Errors = errors ?? throw new ArgumentNullException(nameof(errors));
+            SetUnknownErrorIfNoErrorsSet();
+            Error = error;
+        }
+
+        /// <summary>
+        /// The operation error
+        /// </summary>
+        public TError Error { get; set; }
+    }
 }
