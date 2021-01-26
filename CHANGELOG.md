@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v1.8.0:
+- Added a new generic overload `RepositoryResult<TResult, TError>`
+
 ## v1.7.0:
 - The `CamelCaseDefaultValuesContractResolver` was changed to now preserve the casing for keys in dictionaries
 - Drop tests for `netcoreapp2.2` and add tests for `netcoreapp2.1`
