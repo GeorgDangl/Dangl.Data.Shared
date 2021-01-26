@@ -96,6 +96,14 @@ namespace Dangl.Data.Shared.Tests
                 var result = RepositoryResult<object, object>.Success(value);
                 Assert.Equal(value, result.Value);
             }
+
+            [Fact]
+            public void ReturnsCorrectValueOnCast()
+            {
+                var value = new object();
+                RepositoryResult<object, object> result = value;
+                Assert.Equal(value, result.Value);
+            }
         }
 
         public class GenericTests
@@ -158,6 +166,14 @@ namespace Dangl.Data.Shared.Tests
             {
                 var value = new object();
                 var result = RepositoryResult<object>.Success(value);
+                Assert.Equal(value, result.Value);
+            }
+
+            [Fact]
+            public void ReturnsCorrectValueOnCast()
+            {
+                var value = new object();
+                RepositoryResult<object> result = value;
                 Assert.Equal(value, result.Value);
             }
         }

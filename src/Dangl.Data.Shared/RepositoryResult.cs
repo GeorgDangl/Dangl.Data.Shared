@@ -72,6 +72,13 @@ namespace Dangl.Data.Shared
                 Value = value
             };
         }
+
+        /// <summary>
+        /// Converts a value to a successful result
+        /// </summary>
+        /// <param name="value">The value to convert</param>
+        public static implicit operator RepositoryResult<TResult, TError>(TResult value) =>
+            Success(value);
     }
 
     /// <summary>
@@ -140,6 +147,13 @@ namespace Dangl.Data.Shared
                 Value = value
             };
         }
+
+        /// <summary>
+        /// Converts a value to a successful result
+        /// </summary>
+        /// <param name="value">The value to convert</param>
+        public static implicit operator RepositoryResult<TResult>(TResult value) =>
+            Success(value);
     }
 
     /// <summary>
