@@ -54,6 +54,47 @@ The `JsonOptionsExtensions` class configures default Json options for the Newton
 It ignores null values, uses the `EmptyEnumDeserializer` (derived from `StringEnumConverter` and maps empty or null enum values to their default value), the `GuidStringDeserializer` to deserialize empty or null Guid values to an empty guid and ignores default values for `Guid`, `DateTime`
 and `DateTimeOffset`.
 
+## StringFilterQueryExtensions
+
+The `StringFilterQueryExtensions` class has a `.Filter()` extension method with the following signature:
+
+```csharp
+public static IQueryable<T> Filter<T>(this IQueryable<T> queryable,
+    string filter,
+    Func<string, Expression<Func<T, bool>>> filterExpression,
+    bool transformFilterToLowercase)
+```
+
+It can be used to apply a string filter. Meaning, you supply a string `filter` parameter and a `filterExpression`, and the `filter` is split into word segments and each applied to the `filterExpression`.
+
+### Example
+
+Let's you you want to implement a dynamic filter, e.g. if the user enters two words, you want to check if both of the words are contained in the value.  
+So, the user input maybe looks like this: `hello world`, and your filter looks like `x => y => y.Contains(x)`. Instead of you having to manually split the string, you can now do something like this:
+```csharp
+queryable.Filter("hello world", x => y => y.Contains(x), transformFilterToLowercase: false);
+```
+
+This would then get translated to something like this:
+```csharp
+// The splitted query is "hello" and "world"
+queryable.Where(q => q.Contains("hello") && q.Contains("world"));
+```
+
+You can also optionally tell it to transform all single segements of your filter to lowercase.
+
+In **EntityFramework**, you could use something like this to build a dynamic LIKE query:
+
+```csharp
+var filter = "search query";
+var filteredQuery = _context.Projects
+    .Filter(filter, text => p =>
+        EF.Functions.Like(p.Name, $"%{text}%")
+        || EF.Functions.Like(p.ContactName, $"%{text}%")
+        || EF.Functions.Like(p.Description, $"%{text}%"),
+        transformFilterToLowercase: true);
+```
+
 ## IClaimBasedAuthorizationRequirement
 
 The namespace `Dangl.Data.Shared.AspNetCore.Authorization` contains utilities that help in building authorization policies that
