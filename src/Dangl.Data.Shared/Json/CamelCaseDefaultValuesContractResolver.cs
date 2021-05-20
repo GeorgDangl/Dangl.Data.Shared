@@ -47,7 +47,7 @@ namespace Dangl.Data.Shared.Json
         /// <returns></returns>
         protected override string ResolveDictionaryKey(string dictionaryKey)
         {
-            // There should be no transofmration for dictionary keys
+            // There should be no transformation for dictionary keys
             return dictionaryKey;
         }
     }

@@ -93,6 +93,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
+                .SetProcessArgumentConfigurator(a => a.Add("/nodeReuse:false"))
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion(GitVersion.AssemblySemVer)
                 .SetInformationalVersion(GitVersion.InformationalVersion));
@@ -105,6 +106,7 @@ class Build : NukeBuild
             var changeLog = GetCompleteChangeLog(ChangeLogFile)
                 .EscapeStringPropertyForMsBuild();
             DotNetPack(x => x
+                .SetProcessArgumentConfigurator(a => a.Add("/nodeReuse:false"))
                 .SetConfiguration(Configuration)
                 .SetPackageReleaseNotes(changeLog)
                 .SetDescription("Dangl.Data.Shared - www.dangl-it.com")
@@ -124,6 +126,7 @@ class Build : NukeBuild
             try
             {
                 DotNetTest(x => x
+                    .SetProcessArgumentConfigurator(a => a.Add("/nodeReuse:false"))
                     .SetNoBuild(true)
                     .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects

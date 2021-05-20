@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.0.0:
+- Dropped support for `netstandard1.3`. The lowest supported framework is now `netstandard2.0`
+
 ## v1.9.0:
 - Added a new generic overload `ApiError<TError>`
 
