@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.1.0:
+- The `LocalizedSpaStaticFileExtensions` now make sure that the default entry file for the SPA is never cached and returns `Cache-Control: no-store` when delivered
+
 ## v2.0.0:
 - Dropped support for `netstandard1.3`. The lowest supported framework is now `netstandard2.0`
 

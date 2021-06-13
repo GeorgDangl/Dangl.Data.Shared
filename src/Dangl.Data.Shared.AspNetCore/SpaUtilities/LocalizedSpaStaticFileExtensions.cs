@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Net.Http.Headers;
+using System;
 
 namespace Dangl.Data.Shared.AspNetCore.SpaUtilities
 {
@@ -49,7 +51,16 @@ namespace Dangl.Data.Shared.AspNetCore.SpaUtilities
                 return next();
             });
 
-            applicationBuilder.UseStaticFiles();
+            applicationBuilder.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = ctx =>
+                {
+                    if (ctx.Context.Request.Path.ToString().EndsWith("/" + defaultFile.TrimStart('/'), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        ctx.Context.Response.Headers[HeaderNames.CacheControl] = "no-store";
+                    }
+                }
+            });
         }
     }
 }
