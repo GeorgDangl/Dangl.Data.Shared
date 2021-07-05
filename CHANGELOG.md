@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.1.1
+- Added `CdnNoCacheAttribute : ActionFilterAttribute`, an attribute which sets the `Cache-Control` header to `no-store, no-cache, no-transform`
+
 ## v2.1.0:
 - The `LocalizedSpaStaticFileExtensions` now make sure that the default entry file for the SPA is never cached and returns `Cache-Control: no-store` when delivered
 
