@@ -61,5 +61,15 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
                 Value = "Some Data"
             });
         }
+
+        [HttpGet("NoCacheNoTransform")]
+        [CdnNoCache]
+        public IActionResult NoCacheNoTransform()
+        {
+            return Ok(new
+            {
+                Value = "Some Data"
+            });
+        }
     }
 }
