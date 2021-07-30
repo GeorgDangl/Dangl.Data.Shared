@@ -20,7 +20,7 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
     services.AddMvc(options =>
         {
             options.Filters.Add(typeof(ModelStateValidationFilter));
-        })
+        });
 
 ## RequiredFormFileValidationFilter
 The `RequiredFormFileValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the invoked
@@ -41,7 +41,7 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
     services.AddMvc(options =>
         {
             options.Filters.Add(typeof(RequiredFormFileValidationFilter));
-        })
+        });
 
 ## BiggerThanZeroAttribute
 
