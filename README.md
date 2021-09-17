@@ -229,6 +229,28 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
 }
 ```
 
+## CdnNoCacheAttribute
+
+The `CdnNoCacheAttribute` is a class that can be applied to ASP.NET Core controller actions to append the following headers:
+
+    Cache-Control: no-store, no-cache, no-transform
+
+This attribute should be used for API responses on Cloudflare CDN. It sets the 'Cache-Control' header to 'no-store, no-cache, no-transform'. Cloudflare will not automatically compress responses for unknown content types, and will also not automatically pass through compression. For example, returning mime type 'application/octet-stream' without an appropriate 'no-cache, no-transform' entry in 'Cache-Control' will make Cloudflare always return the response uncompressed, even if the original server did compress it.
+
+Example:
+
+```csharp
+[HttpGet("NoCacheNoTransform")]
+[CdnNoCache]
+public IActionResult NoCacheNoTransform()
+{
+    return Ok(new
+    {
+        Value = "Some Data"
+    });
+}
+```
+
 ## Assembly Strong Naming & Usage in Signed Applications
 
 This module produces strong named assemblies when compiled. When consumers of this package require strongly named assemblies, for example when they
