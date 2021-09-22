@@ -1,6 +1,5 @@
-using Nuke.CoberturaConverter;
+﻿using Nuke.CoberturaConverter;
 using Nuke.Common.Git;
-using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
@@ -20,7 +19,6 @@ using static Nuke.CoberturaConverter.CoberturaConverterTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using Nuke.Common.Tools.DocFX;
-using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.Common.EnvironmentInfo;
@@ -35,6 +33,7 @@ using System.Collections.Generic;
 using static Nuke.Common.IO.XmlTasks;
 using Nuke.Common.Tools.AzureKeyVault.Attributes;
 using Nuke.Common.IO;
+using Nuke.Common.Tools.Coverlet;
 
 class Build : NukeBuild
 {
@@ -158,61 +157,63 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj").ToList();
-            var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
 
-            var snapshotIndex = 0;
+            var hasFailedTests = false;
             try
             {
-                DotCoverCover(c => c
-                    .SetTargetExecutable(dotnetPath)
-                    .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
-                    .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
-                    .CombineWith(cc => testProjects.SelectMany(testProject => {
-                        var projectDirectory = Path.GetDirectoryName(testProject);
-                        var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
-                        return targetFrameworks.Select(targetFramework =>
+                DotNetTest(c => c
+                    .EnableNoBuild()
+                    .SetTestAdapterPath(".")
+                    .CombineWith(cc => testProjects
+                        .SelectMany(testProject =>
                         {
-                            snapshotIndex++;
-                            return cc
-                                .SetTargetWorkingDirectory(projectDirectory)
-                                .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot")
-                                .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. \"--logger:xunit;LogFilePath={OutputDirectory}/{snapshotIndex}_testresults-{targetFramework}.xml\"");
-                        });
-                    })), degreeOfParallelism: System.Environment.ProcessorCount,
-                    completeOnFailure: true);
+                            var projectDirectory = Path.GetDirectoryName(testProject);
+                            var projectName = Path.GetFileNameWithoutExtension(testProject);
+                            var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
+                            return targetFrameworks.Select(targetFramework => cc
+                                // Coverage data is only collected for .NET Core or .NET 5 and newer
+                                .When(!targetFramework.StartsWith("net4"), ccc => ccc
+                                    .EnableCollectCoverage()
+                                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
+                                    .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
+                                    .SetProcessArgumentConfigurator(a => a
+                                        .Add($"/p:Include=[Dangl.Data.Shared*]*")
+                                        .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
+                                        // This is required for the .NET Framework tests, otherwise strong named assemblies would not be correctly
+                                        // found since Coverlet changes them in order to be able to generate a coverage result
+                                        .Add("-- RunConfiguration.DisableAppDomain=true")))
+                                .SetProjectFile(testProject)
+                                .SetFramework(targetFramework)
+                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml"));
+                        })),
+                            degreeOfParallelism: Environment.ProcessorCount,
+                            completeOnFailure: true);
             }
-            finally
+            catch
             {
-                PrependFrameworkToTestresults();
+                hasFailedTests = true;
             }
 
-            var snapshots = GlobFiles(OutputDirectory, "*.snapshot")
-                .Aggregate((c, n) => c + ";" + n);
-
-            DotCoverMerge(c => c
-                .SetSource(snapshots)
-                .SetOutputFile(OutputDirectory / "coverage.snapshot"));
-
-            DotCoverReport(c => c
-                .SetSource(OutputDirectory / "coverage.snapshot")
-                .SetOutputFile(OutputDirectory / "coverage.xml")
-                .SetReportType(DotCoverReportType.DetailedXml));
+            PrependFrameworkToTestresults();
 
             // This is the report that's pretty and visualized in Jenkins
             ReportGenerator(c => c
                 .SetFramework("netcoreapp3.0")
-                .SetReports(OutputDirectory / "coverage.xml")
+                .SetReports(OutputDirectory / "*_coverage*.xml")
                 .SetTargetDirectory(OutputDirectory / "CoverageReport"));
 
-            // This is the report in Cobertura format that integrates so nice in Jenkins
-            // dashboard and allows to extract more metrics and set build health based
-            // on coverage readings
-            DotCoverToCobertura(s => s
-                    .SetInputFile(OutputDirectory / "coverage.xml")
-                    .SetOutputFile(OutputDirectory / "cobertura_coverage.xml"))
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            // Merge coverage reports, otherwise they might not be completely
+            // picked up by Jenkins
+            ReportGenerator(c => c
+                .SetFramework("netcoreapp3.0")
+                .SetReports(OutputDirectory / "*_coverage*.xml")
+                .SetTargetDirectory(OutputDirectory)
+                .SetReportTypes(ReportTypes.Cobertura));
+
+            if (hasFailedTests)
+            {
+                ControlFlow.Fail("Some tests have failed");
+            }
         });
 
     Target Push => _ => _
