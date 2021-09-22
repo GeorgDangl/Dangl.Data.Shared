@@ -1,4 +1,4 @@
-﻿using Nuke.CoberturaConverter;
+using Nuke.CoberturaConverter;
 using Nuke.Common.Git;
 using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
@@ -134,7 +134,7 @@ class Build : NukeBuild
                             .Select(targetFramework => cc
                                 .SetFramework(targetFramework)
                                 .SetProcessWorkingDirectory(Path.GetDirectoryName(testProject))
-                                .SetLogger($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
+                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
                                 degreeOfParallelism: Environment.ProcessorCount);
             }
             finally
