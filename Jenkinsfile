@@ -6,7 +6,6 @@ pipeline {
     agent {
         node {
             label 'master'
-            customWorkspace 'workspace/Dangl.Data.Shared'
         }
     }
     environment {
