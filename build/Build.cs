@@ -198,14 +198,14 @@ class Build : NukeBuild
 
             // This is the report that's pretty and visualized in Jenkins
             ReportGenerator(c => c
-                .SetFramework("netcoreapp3.0")
+                .SetFramework("net6.0")
                 .SetReports(OutputDirectory / "*_coverage*.xml")
                 .SetTargetDirectory(OutputDirectory / "CoverageReport"));
 
             // Merge coverage reports, otherwise they might not be completely
             // picked up by Jenkins
             ReportGenerator(c => c
-                .SetFramework("netcoreapp3.0")
+                .SetFramework("net6.0")
                 .SetReports(OutputDirectory / "*_coverage*.xml")
                 .SetTargetDirectory(OutputDirectory)
                 .SetReportTypes(ReportTypes.Cobertura));
