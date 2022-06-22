@@ -31,6 +31,7 @@ using static Nuke.WebDocu.WebDocuTasks;
 using Nuke.Common.ProjectModel;
 using System.Collections.Generic;
 using static Nuke.Common.IO.XmlTasks;
+using static Nuke.Common.IO.TextTasks;
 using Nuke.Common.Tools.AzureKeyVault.Attributes;
 using Nuke.Common.IO;
 using Nuke.Common.Tools.Coverlet;
@@ -196,12 +197,6 @@ class Build : NukeBuild
 
             PrependFrameworkToTestresults();
 
-            // This is the report that's pretty and visualized in Jenkins
-            ReportGenerator(c => c
-                .SetFramework("net6.0")
-                .SetReports(OutputDirectory / "*_coverage*.xml")
-                .SetTargetDirectory(OutputDirectory / "CoverageReport"));
-
             // Merge coverage reports, otherwise they might not be completely
             // picked up by Jenkins
             ReportGenerator(c => c
@@ -210,11 +205,40 @@ class Build : NukeBuild
                 .SetTargetDirectory(OutputDirectory)
                 .SetReportTypes(ReportTypes.Cobertura));
 
+            MakeSourceEntriesRelativeInCoberturaFormat(OutputDirectory / "Cobertura.xml");
+
             if (hasFailedTests)
             {
                 Assert.Fail("Some tests have failed");
             }
         });
+
+    private void MakeSourceEntriesRelativeInCoberturaFormat(string coberturaReportPath)
+    {
+        var originalText = ReadAllText(coberturaReportPath);
+        var xml = XDocument.Parse(originalText);
+
+        var xDoc = XDocument.Load(coberturaReportPath);
+
+        var sourcesEntry = xDoc
+            .Root
+            .Elements()
+            .Where(e => e.Name.LocalName == "sources")
+            .Single();
+        var basePath = sourcesEntry.Value;
+
+        var filenameAttributes = xDoc
+            .Root
+            .Descendants()
+            .Where(d => d.Attributes().Any(a => a.Name.LocalName == "filename"))
+            .Select(d => d.Attributes().First(a => a.Name.LocalName == "filename"));
+        foreach (var filenameAttribute in filenameAttributes)
+        {
+            filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
+        }
+
+        xDoc.Save(coberturaReportPath);
+    }
 
     Target Push => _ => _
         .DependsOn(Pack)
