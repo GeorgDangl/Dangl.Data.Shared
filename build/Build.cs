@@ -1,4 +1,4 @@
-﻿using Nuke.CoberturaConverter;
+using Nuke.CoberturaConverter;
 using Nuke.Common.Git;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
@@ -205,40 +205,11 @@ class Build : NukeBuild
                 .SetTargetDirectory(OutputDirectory)
                 .SetReportTypes(ReportTypes.Cobertura));
 
-            MakeSourceEntriesRelativeInCoberturaFormat(OutputDirectory / "Cobertura.xml");
-
             if (hasFailedTests)
             {
                 Assert.Fail("Some tests have failed");
             }
         });
-
-    private void MakeSourceEntriesRelativeInCoberturaFormat(string coberturaReportPath)
-    {
-        var originalText = ReadAllText(coberturaReportPath);
-        var xml = XDocument.Parse(originalText);
-
-        var xDoc = XDocument.Load(coberturaReportPath);
-
-        var sourcesEntry = xDoc
-            .Root
-            .Elements()
-            .Where(e => e.Name.LocalName == "sources")
-            .Single();
-        var basePath = sourcesEntry.Value;
-
-        var filenameAttributes = xDoc
-            .Root
-            .Descendants()
-            .Where(d => d.Attributes().Any(a => a.Name.LocalName == "filename"))
-            .Select(d => d.Attributes().First(a => a.Name.LocalName == "filename"));
-        foreach (var filenameAttribute in filenameAttributes)
-        {
-            filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
-        }
-
-        xDoc.Save(coberturaReportPath);
-    }
 
     Target Push => _ => _
         .DependsOn(Pack)
