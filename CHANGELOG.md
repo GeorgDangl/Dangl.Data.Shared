@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.2.0:
+- Added a new target for .NET 6, dropped support for .NET Core 3.1
+
 ## v2.1.1
 - Added `CdnNoCacheAttribute : ActionFilterAttribute`, an attribute which sets the `Cache-Control` header to `no-store, no-cache, no-transform`
 
