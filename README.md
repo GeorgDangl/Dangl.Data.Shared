@@ -187,6 +187,8 @@ a localized Angular application might generate these files in your `wwwroot` dir
 To be able to serve these index files depending on the request of the user, the extensions detect the user
 language via the `IUserLocaleService` and serve the correct files.
 
+Additionally, it also tries to resolve relative paths for requests. For example, if the client requests `/assets/picture.jpg`, the extensions will try to serve the file from `/dist/en/assets/picture.jpg` if the user language is `en`. This makes it possible to serve assets that are placed relative to the SPA root folder, without requiring the client to know about the relative path or any other configuration on the SPA side.
+
 ### Example
 
 First, configure the service:

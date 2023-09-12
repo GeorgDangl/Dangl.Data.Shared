@@ -5,6 +5,7 @@ All notable changes to **Dangl.Data.Shared** are documented here.
 ## v2.2.0:
 - Added a new target for .NET 6, dropped support for .NET Core 3.1
 - Removed `netstandard2.0` and `net5.0` targets for **Dangl.Data.Shared.AspNetCore**, and added `net7.0`
+- The `UseLocalizedSpaStaticFiles` will now also try to resolve relative paths for requests, meaning e.g. assets placed relative to an SPA subfolder will also be correctly removed now, transparent to the client requesting the file. For example, a client that requests `/assets/picture.jpg` might be served the file internally from `/dist/en/assets/picture.jpg`
 
 ## v2.1.1
 - Added `CdnNoCacheAttribute : ActionFilterAttribute`, an attribute which sets the `Cache-Control` header to `no-store, no-cache, no-transform`
