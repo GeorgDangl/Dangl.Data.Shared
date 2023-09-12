@@ -16,8 +16,8 @@
     <PackageReference Include="Nuke.WebDocu" Version="4.0.0" />
     <PackageReference Include="Nuke.GitHub" Version="3.0.0" />
     <PackageReference Include="Dangl.Nuke.CoberturaConverter" Version="2.0.0" />
-    <PackageReference Include="ReportGenerator" Version="5.1.9" />
-    <PackageReference Include="docfx.console" Version="2.59.2">
+    <PackageReference Include="ReportGenerator" Version="5.1.25" />
+    <PackageReference Include="docfx.console" Version="2.59.4">
       <ExcludeAssets>build</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
