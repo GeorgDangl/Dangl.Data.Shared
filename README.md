@@ -20,7 +20,7 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
     services.AddMvc(options =>
         {
             options.Filters.Add(typeof(ModelStateValidationFilter));
-        })
+        });
 
 ## RequiredFormFileValidationFilter
 The `RequiredFormFileValidationFilter` is a simple wrapper that returns a `BadRequestObjectResult` with an `ApiError` body when the invoked
@@ -41,7 +41,7 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
     services.AddMvc(options =>
         {
             options.Filters.Add(typeof(RequiredFormFileValidationFilter));
-        })
+        });
 
 ## BiggerThanZeroAttribute
 
@@ -187,6 +187,8 @@ a localized Angular application might generate these files in your `wwwroot` dir
 To be able to serve these index files depending on the request of the user, the extensions detect the user
 language via the `IUserLocaleService` and serve the correct files.
 
+Additionally, it also tries to resolve relative paths for requests. For example, if the client requests `/assets/picture.jpg`, the extensions will try to serve the file from `/dist/en/assets/picture.jpg` if the user language is `en`. This makes it possible to serve assets that are placed relative to the SPA root folder, without requiring the client to know about the relative path or any other configuration on the SPA side.
+
 ### Example
 
 First, configure the service:
@@ -226,6 +228,28 @@ namespace Dangl.Data.Shared.AspNetCore.Tests.Integration
             });
         }
     }
+}
+```
+
+## CdnNoCacheAttribute
+
+The `CdnNoCacheAttribute` is a class that can be applied to ASP.NET Core controller actions to append the following headers:
+
+    Cache-Control: no-store, no-cache, no-transform
+
+This attribute should be used for API responses on Cloudflare CDN. It sets the 'Cache-Control' header to 'no-store, no-cache, no-transform'. Cloudflare will not automatically compress responses for unknown content types, and will also not automatically pass through compression. For example, returning mime type 'application/octet-stream' without an appropriate 'no-cache, no-transform' entry in 'Cache-Control' will make Cloudflare always return the response uncompressed, even if the original server did compress it.
+
+Example:
+
+```csharp
+[HttpGet("NoCacheNoTransform")]
+[CdnNoCache]
+public IActionResult NoCacheNoTransform()
+{
+    return Ok(new
+    {
+        Value = "Some Data"
+    });
 }
 ```
 

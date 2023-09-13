@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
@@ -38,6 +39,9 @@ namespace Dangl.Data.Shared.AspNetCore.SpaUtilities
         /// <summary>
         /// This configures the localized SPA serving in the app pipeline. It should be called as
         /// last step in the config, since it will serve the SPA index file for all requests.
+        /// For requests, it also tries to determine if a localized file exists, and if so, serves
+        /// it directly. This makes accessing relative files in SPAs possible, e.g. accessing
+        /// '/assets/logo.png' will serve the localized file '/dist/en/assets/logo.png' if it exists.
         /// </summary>
         /// <param name="applicationBuilder"></param>
         /// <param name="defaultFile"></param>
@@ -47,6 +51,25 @@ namespace Dangl.Data.Shared.AspNetCore.SpaUtilities
             {
                 // In this part of the pipeline, the request path is altered to point to a localized SPA asset
                 var spaFilePathProvider = context.RequestServices.GetRequiredService<LocalizedSpaStaticFilePathProvider>();
+                var isEmptyOrDefaultFileRequest = !context.Request.Path.HasValue
+                || string.IsNullOrWhiteSpace(context.Request.Path.Value)
+                    || context.Request.Path.Value == "/"
+                    || context.Request.Path.Value.EndsWith(defaultFile, StringComparison.InvariantCultureIgnoreCase);
+
+                if (!isEmptyOrDefaultFileRequest)
+                {
+                    // We're checking if the file actually exists, because it could be a relative
+                    // file request e.g. to an asset or a script file
+                    var localRequestPath = spaFilePathProvider.GetRequestPath("/" + context.Request.Path.ToString());
+                    var webHostEnvironment = context.RequestServices.GetRequiredService<IWebHostEnvironment>();
+                    var requestedFileInfo = webHostEnvironment.WebRootFileProvider.GetFileInfo(localRequestPath);
+                    if (requestedFileInfo.Exists)
+                    {
+                        context.Request.Path = localRequestPath;
+                        return next();
+                    }
+                }
+
                 context.Request.Path = spaFilePathProvider.GetRequestPath("/" + defaultFile.TrimStart('/'));
                 return next();
             });

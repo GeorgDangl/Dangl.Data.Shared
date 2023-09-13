@@ -1,6 +1,5 @@
-﻿using Nuke.CoberturaConverter;
+using Nuke.CoberturaConverter;
 using Nuke.Common.Git;
-using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
@@ -20,7 +19,6 @@ using static Nuke.CoberturaConverter.CoberturaConverterTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using Nuke.Common.Tools.DocFX;
-using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.Common.EnvironmentInfo;
@@ -33,8 +31,10 @@ using static Nuke.WebDocu.WebDocuTasks;
 using Nuke.Common.ProjectModel;
 using System.Collections.Generic;
 using static Nuke.Common.IO.XmlTasks;
+using static Nuke.Common.IO.TextTasks;
 using Nuke.Common.Tools.AzureKeyVault.Attributes;
 using Nuke.Common.IO;
+using Nuke.Common.Tools.Coverlet;
 
 class Build : NukeBuild
 {
@@ -134,7 +134,7 @@ class Build : NukeBuild
                             .Select(targetFramework => cc
                                 .SetFramework(targetFramework)
                                 .SetProcessWorkingDirectory(Path.GetDirectoryName(testProject))
-                                .SetLogger($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
+                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
                                 degreeOfParallelism: Environment.ProcessorCount);
             }
             finally
@@ -158,61 +158,57 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj").ToList();
-            var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
 
-            var snapshotIndex = 0;
+            var hasFailedTests = false;
             try
             {
-                DotCoverCover(c => c
-                    .SetTargetExecutable(dotnetPath)
-                    .SetFilters("+:Dangl.Data.Shared;+:Dangl.Data.Shared.AspNetCore")
-                    .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
-                    .CombineWith(cc => testProjects.SelectMany(testProject => {
-                        var projectDirectory = Path.GetDirectoryName(testProject);
-                        var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
-                        return targetFrameworks.Select(targetFramework =>
+                DotNetTest(c => c
+                    .EnableNoBuild()
+                    .SetTestAdapterPath(".")
+                    .CombineWith(cc => testProjects
+                        .SelectMany(testProject =>
                         {
-                            snapshotIndex++;
-                            return cc
-                                .SetTargetWorkingDirectory(projectDirectory)
-                                .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot")
-                                .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. \"--logger:xunit;LogFilePath={OutputDirectory}/{snapshotIndex}_testresults-{targetFramework}.xml\"");
-                        });
-                    })), degreeOfParallelism: System.Environment.ProcessorCount,
-                    completeOnFailure: true);
+                            var projectDirectory = Path.GetDirectoryName(testProject);
+                            var projectName = Path.GetFileNameWithoutExtension(testProject);
+                            var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
+                            return targetFrameworks.Select(targetFramework => cc
+                                // Coverage data is only collected for .NET Core or .NET 5 and newer
+                                .When(!targetFramework.StartsWith("net4"), ccc => ccc
+                                    .EnableCollectCoverage()
+                                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
+                                    .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
+                                    .SetProcessArgumentConfigurator(a => a
+                                        .Add($"/p:Include=[Dangl.Data.Shared*]*")
+                                        .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
+                                        // This is required for the .NET Framework tests, otherwise strong named assemblies would not be correctly
+                                        // found since Coverlet changes them in order to be able to generate a coverage result
+                                        .Add("-- RunConfiguration.DisableAppDomain=true")))
+                                .SetProjectFile(testProject)
+                                .SetFramework(targetFramework)
+                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml"));
+                        })),
+                            degreeOfParallelism: Environment.ProcessorCount,
+                            completeOnFailure: true);
             }
-            finally
+            catch
             {
-                PrependFrameworkToTestresults();
+                hasFailedTests = true;
             }
 
-            var snapshots = GlobFiles(OutputDirectory, "*.snapshot")
-                .Aggregate((c, n) => c + ";" + n);
+            PrependFrameworkToTestresults();
 
-            DotCoverMerge(c => c
-                .SetSource(snapshots)
-                .SetOutputFile(OutputDirectory / "coverage.snapshot"));
-
-            DotCoverReport(c => c
-                .SetSource(OutputDirectory / "coverage.snapshot")
-                .SetOutputFile(OutputDirectory / "coverage.xml")
-                .SetReportType(DotCoverReportType.DetailedXml));
-
-            // This is the report that's pretty and visualized in Jenkins
+            // Merge coverage reports, otherwise they might not be completely
+            // picked up by Jenkins
             ReportGenerator(c => c
-                .SetFramework("netcoreapp3.0")
-                .SetReports(OutputDirectory / "coverage.xml")
-                .SetTargetDirectory(OutputDirectory / "CoverageReport"));
+                .SetFramework("net6.0")
+                .SetReports(OutputDirectory / "*_coverage*.xml")
+                .SetTargetDirectory(OutputDirectory)
+                .SetReportTypes(ReportTypes.Cobertura));
 
-            // This is the report in Cobertura format that integrates so nice in Jenkins
-            // dashboard and allows to extract more metrics and set build health based
-            // on coverage readings
-            DotCoverToCobertura(s => s
-                    .SetInputFile(OutputDirectory / "coverage.xml")
-                    .SetOutputFile(OutputDirectory / "cobertura_coverage.xml"))
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
+            if (hasFailedTests)
+            {
+                Assert.Fail("Some tests have failed");
+            }
         });
 
     Target Push => _ => _
@@ -221,10 +217,15 @@ class Build : NukeBuild
         .Requires(() => PublicMyGetApiKey)
         .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
+        .OnlyWhenDynamic(() => IsOnBranch("master") || IsOnBranch("develop"))
         .Executes(() =>
         {
-            GlobFiles(OutputDirectory, "*.nupkg").NotEmpty()
+            var packages = GlobFiles(OutputDirectory, "*.nupkg")
                 .Where(x => !x.EndsWith("symbols.nupkg"))
+                .ToList();
+            Assert.NotEmpty(packages);
+
+            packages
                 .ForEach(x =>
                 {
                     DotNetNuGetPush(s => s
@@ -276,6 +277,7 @@ class Build : NukeBuild
         .DependsOn(BuildDocumentation)
         .Requires(() => DocuApiKey)
         .Requires(() => DocuBaseUrl)
+        .OnlyWhenDynamic(() => IsOnBranch("master") || IsOnBranch("develop"))
         .Executes(() =>
         {
             var changeLog = GetCompleteChangeLog(ChangeLogFile);
@@ -292,7 +294,7 @@ class Build : NukeBuild
     Target PublishGitHubRelease => _ => _
         .DependsOn(Pack)
         .Requires(() => GitHubAuthenticationToken)
-        .OnlyWhenDynamic(() => GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
+        .OnlyWhenDynamic(() => IsOnBranch("master"))
         .Executes(async () =>
         {
             var releaseTag = $"v{GitVersion.MajorMinorPatch}";
@@ -303,7 +305,8 @@ class Build : NukeBuild
             var completeChangeLog = $"## {releaseTag}" + Environment.NewLine + latestChangeLog;
 
             var repositoryInfo = GetGitHubRepositoryInfo(GitRepository);
-            var nuGetPackages = GlobFiles(OutputDirectory, "*.nupkg").NotEmpty().ToArray();
+            var nuGetPackages = GlobFiles(OutputDirectory, "*.nupkg").ToArray();
+            Assert.NotEmpty(nuGetPackages);
 
             await PublishRelease(x => x
                     .SetArtifactPaths(nuGetPackages)
@@ -372,5 +375,10 @@ class Build : NukeBuild
         var startIndex = name.LastIndexOf('-');
         name = name.Substring(startIndex + 1);
         return name;
+    }
+
+    private bool IsOnBranch(string branchName)
+    {
+        return GitVersion.BranchName.Equals(branchName) || GitVersion.BranchName.Equals($"origin/{branchName}");
     }
 }
