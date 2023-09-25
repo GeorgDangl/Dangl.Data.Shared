@@ -3,7 +3,7 @@
 All notable changes to **Dangl.Data.Shared** are documented here.
 
 ## v2.3.0:
-- The ´BiggerThanZeroAttribute` now also supports validating `long` types
+- The `BiggerThanZeroAttribute` now also supports validating `long` types
 
 ## v2.2.0:
 - Added a new target for .NET 6, dropped support for .NET Core 3.1
