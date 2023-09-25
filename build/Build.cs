@@ -49,8 +49,8 @@ class Build : NukeBuild
     [GitVersion(Framework = "netcoreapp3.1")] readonly GitVersion GitVersion;
     [GitRepository] readonly GitRepository GitRepository;
 
-    [AzureKeyVaultSecret] string PublicMyGetSource;
-    [AzureKeyVaultSecret] string PublicMyGetApiKey;
+    [AzureKeyVaultSecret] string DanglPublicFeedSource;
+    [AzureKeyVaultSecret] string FeedzAccessToken;
     [AzureKeyVaultSecret] string NuGetApiKey;
     [AzureKeyVaultSecret] string DocuBaseUrl;
     [AzureKeyVaultSecret] string GitHubAuthenticationToken;
@@ -208,8 +208,8 @@ class Build : NukeBuild
 
     Target Push => _ => _
         .DependsOn(Pack)
-        .Requires(() => PublicMyGetSource)
-        .Requires(() => PublicMyGetApiKey)
+        .Requires(() => DanglPublicFeedSource)
+        .Requires(() => FeedzAccessToken)
         .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
         .OnlyWhenDynamic(() => IsOnBranch("master") || IsOnBranch("develop"))
@@ -225,8 +225,8 @@ class Build : NukeBuild
                 {
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
-                        .SetSource(PublicMyGetSource)
-                        .SetApiKey(PublicMyGetApiKey));
+                        .SetSource(DanglPublicFeedSource)
+                        .SetApiKey(FeedzAccessToken));
 
                     if (GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
                     {
