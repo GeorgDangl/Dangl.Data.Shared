@@ -45,7 +45,7 @@ To use the filter, it must be configured in the `AddMvc()` call in `ConfigureSer
 
 ## BiggerThanZeroAttribute
 
-The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to `int` properties to ensure their values are greater than zero.
+The `BiggerThanZeroAttribute` is a `ValidationAttribute` that can be applied to `int` or `long` properties to ensure their values are greater than zero.
 
 ## JsonOptionsExtensions
 
