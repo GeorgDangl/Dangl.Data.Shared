@@ -6,62 +6,110 @@ using Xunit;
 
 namespace Dangl.Data.Shared.Tests.Validation
 {
-    public class BiggerThanZeroAttributeTests
+    public static class BiggerThanZeroAttributeTests
     {
-        [Fact]
-        public void ReturnsErrorWhenPropertyIsNoInteger()
+        public class IntegerTests
         {
-            var objectToValidate = new ClassWithStringAttribute { Property = "Hello world!" };
-            var validationContext = new ValidationContext(objectToValidate)
+            [Fact]
+            public void ReturnsErrorWhenPropertyIsNoInteger()
             {
-                MemberName = nameof(ClassWithStringAttribute.Property)
-            };
-            var validationResults = new List<ValidationResult>();
-            var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
-            Assert.False(validationResult);
-            Assert.True(validationResults.Any());
+                var objectToValidate = new ClassWithStringAttribute { Property = "Hello world!" };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithStringAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.False(validationResult);
+                Assert.True(validationResults.Any());
+            }
+
+            [Fact]
+            public void ReturnsErrorWhenPropertyIsZero()
+            {
+                var objectToValidate = new ClassWithIntegerAttribute { Property = 0 };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithIntegerAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.False(validationResult);
+                Assert.True(validationResults.Any());
+            }
+
+            [Fact]
+            public void ReturnsErrorWhenPropertyIsNegative()
+            {
+                var objectToValidate = new ClassWithIntegerAttribute { Property = -4 };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithIntegerAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.False(validationResult);
+                Assert.True(validationResults.Any());
+            }
+
+            [Fact]
+            public void ReturnsOkWhenPropertyIsPositiveInteger()
+            {
+                var objectToValidate = new ClassWithIntegerAttribute { Property = 2 };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithIntegerAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.True(validationResult);
+                Assert.False(validationResults.Any());
+            }
         }
 
-        [Fact]
-        public void ReturnsErrorWhenPropertyIsZero()
+        public class LongTests
         {
-            var objectToValidate = new ClassWithIntegerAttribute { Property = 0 };
-            var validationContext = new ValidationContext(objectToValidate)
+            [Fact]
+            public void ReturnsErrorWhenPropertyIsZero()
             {
-                MemberName = nameof(ClassWithIntegerAttribute.Property)
-            };
-            var validationResults = new List<ValidationResult>();
-            var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
-            Assert.False(validationResult);
-            Assert.True(validationResults.Any());
-        }
+                var objectToValidate = new ClassWithLongAttribute { Property = 0 };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithLongAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.False(validationResult);
+                Assert.True(validationResults.Any());
+            }
 
-        [Fact]
-        public void ReturnsErrorWhenPropertyIsNegative()
-        {
-            var objectToValidate = new ClassWithIntegerAttribute { Property = -4 };
-            var validationContext = new ValidationContext(objectToValidate)
+            [Fact]
+            public void ReturnsErrorWhenPropertyIsNegative()
             {
-                MemberName = nameof(ClassWithIntegerAttribute.Property)
-            };
-            var validationResults = new List<ValidationResult>();
-            var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
-            Assert.False(validationResult);
-            Assert.True(validationResults.Any());
-        }
+                var objectToValidate = new ClassWithLongAttribute { Property = -4 };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithLongAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.False(validationResult);
+                Assert.True(validationResults.Any());
+            }
 
-        [Fact]
-        public void ReturnsOkWhenPropertyIsPositiveInteger()
-        {
-            var objectToValidate = new ClassWithIntegerAttribute { Property = 2 };
-            var validationContext = new ValidationContext(objectToValidate)
+            [Fact]
+            public void ReturnsOkWhenPropertyIsPositiveInteger()
             {
-                MemberName = nameof(ClassWithIntegerAttribute.Property)
-            };
-            var validationResults = new List<ValidationResult>();
-            var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
-            Assert.True(validationResult);
-            Assert.False(validationResults.Any());
+                var objectToValidate = new ClassWithLongAttribute { Property = 2 };
+                var validationContext = new ValidationContext(objectToValidate)
+                {
+                    MemberName = nameof(ClassWithLongAttribute.Property)
+                };
+                var validationResults = new List<ValidationResult>();
+                var validationResult = Validator.TryValidateObject(objectToValidate, validationContext, validationResults, true);
+                Assert.True(validationResult);
+                Assert.False(validationResults.Any());
+            }
         }
 
         public class ClassWithStringAttribute
@@ -74,6 +122,12 @@ namespace Dangl.Data.Shared.Tests.Validation
         {
             [BiggerThanZero]
             public int Property { get; set; }
+        }
+
+        public class ClassWithLongAttribute
+        {
+            [BiggerThanZero]
+            public long Property { get; set; }
         }
     }
 }
