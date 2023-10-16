@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.4.0:
+- Added `RouteNameExtensions` with two extension methods on strings to allow easier working with route and action names in **Dangl.Data.Shared.AspNetCore**
+
 ## v2.3.0:
 - The `BiggerThanZeroAttribute` now also supports validating `long` types
 
