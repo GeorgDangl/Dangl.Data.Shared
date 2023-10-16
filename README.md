@@ -253,6 +253,10 @@ public IActionResult NoCacheNoTransform()
 }
 ```
 
+## RouteNameExtensions
+
+The `RouteNameExtensions` class offers string extensions that make working with controller and action names easier, e.g. you can do `nameof(StatusController).WithoutControllerSuffex()` to get the controller name `Status` without the `Controller` suffix. Similar features also exist for `Async` suffixes. The check is case insensitive, and will just return the original input if the suffix is not present.
+
 ## Assembly Strong Naming & Usage in Signed Applications
 
 This module produces strong named assemblies when compiled. When consumers of this package require strongly named assemblies, for example when they
