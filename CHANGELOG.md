@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.5.0:
+- Added an option to enable caching for static files that are returned by the `UseLocalizedSpaStaticFiles` call
+
 ## v2.4.0:
 - Added `RouteNameExtensions` with two extension methods on strings to allow easier working with route and action names in **Dangl.Data.Shared.AspNetCore**
 
