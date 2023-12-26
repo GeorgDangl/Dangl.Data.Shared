@@ -38,18 +38,27 @@ namespace Dangl.Data.Shared.AspNetCore.SpaUtilities
 
         /// <summary>
         /// This configures the localized SPA serving in the app pipeline. It should be called as
-        /// last step in the config, since it will serve the SPA index file for all requests.
-        /// For requests, it also tries to determine if a localized file exists, and if so, serves
-        /// it directly. This makes accessing relative files in SPAs possible, e.g. accessing
+        /// last step in the config, since it will serve the SPA index file for all requests. For
+        /// requests, it also tries to determine if a localized file exists, and if so, serves it
+        /// directly. This makes accessing relative files in SPAs possible, e.g. accessing
         /// '/assets/logo.png' will serve the localized file '/dist/en/assets/logo.png' if it exists.
         /// </summary>
         /// <param name="applicationBuilder"></param>
         /// <param name="defaultFile"></param>
-        public static void UseLocalizedSpaStaticFiles(this IApplicationBuilder applicationBuilder, string defaultFile)
+        /// <param name="spaRootPath">The root path under which the SPA resides, e.g. "/dist"</param>
+        /// <param name="cacheFilesInRootPath">
+        /// If set to 'true', then requests for files inside the 'spaRootPath' will be returned with
+        /// cache control headers that indicate to the client to cache for one year.
+        /// </param>
+        public static void UseLocalizedSpaStaticFiles(this IApplicationBuilder applicationBuilder,
+            string defaultFile,
+            string spaRootPath,
+            bool cacheFilesInRootPath)
         {
             applicationBuilder.Use((context, next) =>
             {
-                // In this part of the pipeline, the request path is altered to point to a localized SPA asset
+                // In this part of the pipeline, the request path is altered to point to a localized
+                // SPA asset
                 var spaFilePathProvider = context.RequestServices.GetRequiredService<LocalizedSpaStaticFilePathProvider>();
                 var isEmptyOrDefaultFileRequest = !context.Request.Path.HasValue
                 || string.IsNullOrWhiteSpace(context.Request.Path.Value)
@@ -81,6 +90,15 @@ namespace Dangl.Data.Shared.AspNetCore.SpaUtilities
                     if (ctx.Context.Request.Path.ToString().EndsWith("/" + defaultFile.TrimStart('/'), StringComparison.InvariantCultureIgnoreCase))
                     {
                         ctx.Context.Response.Headers[HeaderNames.CacheControl] = "no-store";
+                    }
+                    else if (cacheFilesInRootPath && ctx.Context.Request.Path.ToString().StartsWith("/" + spaRootPath.TrimStart('/'), StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        var headers = ctx.Context.Response.GetTypedHeaders();
+                        headers.CacheControl = new CacheControlHeaderValue
+                        {
+                            Public = true,
+                            MaxAge = TimeSpan.FromDays(365),
+                        };
                     }
                 }
             });
