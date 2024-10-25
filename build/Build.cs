@@ -5,7 +5,6 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.AzureKeyVault;
 using Nuke.Common.Tools.Coverlet;
-using Nuke.Common.Tools.DocFX;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
@@ -23,7 +22,6 @@ using System.Xml.XPath;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.XmlTasks;
-using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
@@ -243,7 +241,8 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DocFXMetadata(x => x.AddProjects(DocFxFile));
+            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net8.0/any/docfx.dll");
+            DotNet($"{docFxPath} metadata {DocFxFile}");
         });
 
     Target BuildDocumentation => _ => _
@@ -259,12 +258,12 @@ class Build : NukeBuild
 
             File.Copy(SolutionDirectory / "README.md", SolutionDirectory / "index.md");
 
-            DocFXBuild(x => x.SetConfigFile(DocFxFile));
+            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net8.0/any/docfx.dll");
+            DotNet($"{docFxPath} {DocFxFile}");
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "shared", true);
             Directory.Delete(SolutionDirectory / "shared-aspnetcore", true);
-            Directory.Delete(SolutionDirectory / "obj", true);
         });
 
     Target UploadDocumentation => _ => _
