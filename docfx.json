@@ -8,10 +8,7 @@
           "src": "./src/Dangl.Data.Shared"
         }
       ],
-      "dest": "shared",
-      "properties": {
-        "TargetFramework": "netstandard2.1"
-      }
+      "dest": "shared"
     },
     {
       "src": [
@@ -21,10 +18,7 @@
           "src": "./src/Dangl.Data.Shared.AspNetCore"
         }
       ],
-      "dest": "shared-aspnetcore",
-      "properties": {
-        "TargetFramework": "netcoreapp3.0"
-      }
+      "dest": "shared-aspnetcore"
     }
   ],
   "build": {
