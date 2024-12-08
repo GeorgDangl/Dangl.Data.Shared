@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.5.2:
+- Dropped support for `net7.0` and added a dedicated target for `net9.0` in **Dangl.Data.Shared.AspNetCore**
+
 ## v2.5.1:
 - Dropped support for `net6.0` and added a dedicated target for `net8.0` in **Dangl.Data.Shared.AspNetCore**
 

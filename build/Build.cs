@@ -86,7 +86,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
-                .SetProcessArgumentConfigurator(a => a.Add("/nodeReuse:false"))
+                .AddProcessAdditionalArguments("/nodeReuse:false")
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion(GitVersion.AssemblySemVer)
                 .SetInformationalVersion(GitVersion.InformationalVersion));
@@ -99,7 +99,7 @@ class Build : NukeBuild
             var changeLog = GetCompleteChangeLog(ChangeLogFile)
                 .EscapeStringPropertyForMsBuild();
             DotNetPack(x => x
-                .SetProcessArgumentConfigurator(a => a.Add("/nodeReuse:false"))
+                .AddProcessAdditionalArguments("/nodeReuse:false")
                 .SetConfiguration(Configuration)
                 .SetPackageReleaseNotes(changeLog)
                 .SetDescription("Dangl.Data.Shared - www.dangl-it.com")
@@ -119,7 +119,7 @@ class Build : NukeBuild
             try
             {
                 DotNetTest(x => x
-                    .SetProcessArgumentConfigurator(a => a.Add("/nodeReuse:false"))
+                    .AddProcessAdditionalArguments("/nodeReuse:false")
                     .SetNoBuild(true)
                     .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects
@@ -170,12 +170,11 @@ class Build : NukeBuild
                                     .EnableCollectCoverage()
                                     .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
                                     .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
-                                    .SetProcessArgumentConfigurator(a => a
-                                        .Add($"/p:Include=[Dangl.Data.Shared*]*")
-                                        .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
-                                        // This is required for the .NET Framework tests, otherwise strong named assemblies would not be correctly
-                                        // found since Coverlet changes them in order to be able to generate a coverage result
-                                        .Add("-- RunConfiguration.DisableAppDomain=true")))
+                                    .AddProcessAdditionalArguments($"/p:Include=[Dangl.Data.Shared*]*")
+                                    .AddProcessAdditionalArguments($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
+                                    // This is required for the .NET Framework tests, otherwise strong named assemblies would not be correctly
+                                    // found since Coverlet changes them in order to be able to generate a coverage result
+                                    .AddProcessAdditionalArguments("-- RunConfiguration.DisableAppDomain=true"))
                                 .SetProjectFile(testProject)
                                 .SetFramework(targetFramework)
                                 .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml"));
