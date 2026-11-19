@@ -2,6 +2,9 @@
 
 All notable changes to **Dangl.Data.Shared** are documented here.
 
+## v2.5.3:
+- **Dangl.Data.Shared** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
+
 ## v2.5.2:
 - Dropped support for `net7.0` and added a dedicated target for `net9.0` in **Dangl.Data.Shared.AspNetCore**
 
