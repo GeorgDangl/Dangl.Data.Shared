@@ -19,6 +19,38 @@
         }
       ],
       "dest": "shared-aspnetcore"
+    },
+    {
+      "src": [
+        {
+          "files": [
+            "Dangl.Data.Shared.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ],
+          "src": "./src/Dangl.Data.Shared"
+        }
+      ],
+      "dest": "output/docs-markdown/shared",
+      "outputFormat": "markdown"
+    },
+    {
+      "src": [
+        {
+          "files": [
+            "Dangl.Data.Shared.AspNetCore.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ],
+          "src": "./src/Dangl.Data.Shared.AspNetCore"
+        }
+      ],
+      "dest": "output/docs-markdown/shared-aspnetcore",
+      "outputFormat": "markdown"
     }
   ],
   "build": {
@@ -51,7 +83,7 @@
       "_enableSearch": true,
       "_gitUrlPattern": "github"
     },
-    "dest": "./output",
+    "dest": "./output/docs",
     "template": [
       "default",
       "docs/template"

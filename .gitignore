@@ -273,3 +273,4 @@ output/*
 
 test/Dangl\.Data\.Shared\.AspNetCore\.Tests\.Integration/Properties/launchSettings\.json
 /output-markdown/
+.fallout/temp/
