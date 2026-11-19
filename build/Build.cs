@@ -244,6 +244,9 @@ class Build : NukeBuild
             DotNet($"{docFxPath} metadata {DocFxFile}");
         });
 
+    Target TestMarkdownDocumentation => _ => _
+        .Executes(() => MarkdownDocumentationTests.Run(OutputDirectory / "markdown-tests"));
+
     Target BuildDocumentation => _ => _
         .DependsOn(Clean)
         .DependsOn(BuildDocFxMetadata)
@@ -263,6 +266,9 @@ class Build : NukeBuild
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "shared", true);
             Directory.Delete(SolutionDirectory / "shared-aspnetcore", true);
+
+            MarkdownDocumentation.Build(SolutionDirectory, OutputDirectory,
+                SolutionDirectory / "output-markdown" / "docs-markdown", requireApi: true);
         });
 
     Target UploadDocumentation => _ => _
@@ -275,13 +281,15 @@ class Build : NukeBuild
         {
             var changeLog = GetCompleteChangeLog(ChangeLogFile);
 
-            WebDocu(s => s
-                .SetDocuBaseUrl(DocuBaseUrl)
-                .SetDocuApiKey(DocuApiKey)
-                .SetMarkdownChangelog(changeLog)
-                .SetSourceDirectory(OutputDirectory)
-                .SetVersion(GitVersion.NuGetVersion)
-            );
+            MarkdownDocumentation.Publish(DocuBaseUrl, DocuApiKey, GitVersion.NuGetVersion,
+                SolutionDirectory / "output-markdown" / "docs-markdown.zip",
+                () => WebDocu(s => s
+                    .SetDocuBaseUrl(DocuBaseUrl)
+                    .SetDocuApiKey(DocuApiKey)
+                    .SetMarkdownChangelog(changeLog)
+                    .SetSourceDirectory(OutputDirectory)
+                    .SetVersion(GitVersion.NuGetVersion)
+                ));
         });
 
     Target PublishGitHubRelease => _ => _
