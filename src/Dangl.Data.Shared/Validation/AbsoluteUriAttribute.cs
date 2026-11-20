@@ -33,7 +33,9 @@ namespace Dangl.Data.Shared.Validation
             {
                 return new ValidationResult($"\"{stringValue}\" is present but empty or only whitespace");
             }
-            if (!Uri.TryCreate(stringValue, UriKind.Absolute, out var outVar))
+            // Rooted paths can be parsed as implicit file URIs, depending on the operating system.
+            if (!Uri.TryCreate(stringValue, UriKind.Absolute, out var uri)
+                || (uri.IsFile && !stringValue.StartsWith(Uri.UriSchemeFile + ":", StringComparison.OrdinalIgnoreCase)))
             {
                 return new ValidationResult($"\"{stringValue}\" is not an absolute Uri");
             }

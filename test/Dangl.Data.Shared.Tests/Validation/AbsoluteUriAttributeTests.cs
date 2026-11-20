@@ -64,10 +64,12 @@ namespace Dangl.Data.Shared.Tests.Validation
             Assert.True(validationResults.Any());
         }
 
-        [Fact]
-        public void ReturnsErrorWhenPropertyIsRelativeUrlWithStartingSlash()
+        [Theory]
+        [InlineData("/docs/intro.html")]
+        [InlineData("//www.example.com/docs/intro.html")]
+        public void ReturnsErrorWhenPropertyIsRelativeUrlWithStartingSlash(string url)
         {
-            var objectToValidate = new ClassWithStringAttribute { Property = "/docs/intro.html" };
+            var objectToValidate = new ClassWithStringAttribute { Property = url };
             var validationContext = new ValidationContext(objectToValidate)
             {
                 MemberName = nameof(ClassWithIntegerAttribute.Property)
@@ -92,10 +94,15 @@ namespace Dangl.Data.Shared.Tests.Validation
             Assert.True(validationResults.Any());
         }
 
-        [Fact]
-        public void ReturnsOkWhenPropertyIsAbsoluteWithProtocol()
+        [Theory]
+        [InlineData("https://www.example.com/docs/intro.html")]
+        [InlineData("https://www.example.com/docs/intro page.html")]
+        [InlineData("file:///docs/intro.html")]
+        [InlineData("FILE:///docs/intro.html")]
+        [InlineData("mailto:test@example.com")]
+        public void ReturnsOkWhenPropertyIsAbsoluteWithProtocol(string url)
         {
-            var objectToValidate = new ClassWithStringAttribute { Property = "https://www.example.com/docs/intro.html" };
+            var objectToValidate = new ClassWithStringAttribute { Property = url };
             var validationContext = new ValidationContext(objectToValidate)
             {
                 MemberName = nameof(ClassWithIntegerAttribute.Property)

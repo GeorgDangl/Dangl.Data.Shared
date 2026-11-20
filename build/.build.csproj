@@ -6,6 +6,8 @@
     <RollForward>Major</RollForward>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RootNamespace></RootNamespace>
+    <FalloutRootDirectory>..</FalloutRootDirectory>
+    <FalloutScriptDirectory>..</FalloutScriptDirectory>
     <IsPackable>False</IsPackable>
     <NoWarn>CS0649;CS0169</NoWarn>
     <FalloutTelemetryVersion>1</FalloutTelemetryVersion>
@@ -16,7 +18,7 @@
     <PackageDownload Include="GitVersion.Tool" Version="[5.12.0]" />
     <PackageReference Include="Dangl.Fallout.WebDocu" Version="8.0.1" />
     <PackageReference Include="Dangl.Fallout.GitHub" Version="8.0.1" />
-    <PackageReference Include="ReportGenerator" Version="5.4.1" />
+    <PackageReference Include="ReportGenerator" Version="5.6.0" />
     <PackageDownload Include="docfx" Version="[2.78.5]" />
   </ItemGroup>
 
