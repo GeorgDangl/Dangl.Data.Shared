@@ -4,6 +4,8 @@ All notable changes to **Dangl.Data.Shared** are documented here.
 
 ## v2.5.3:
 - **Dangl.Data.Shared** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
+- Tests now run on .NET 10 and .NET 11 using xUnit.v3 and Microsoft.Testing.Platform, with native coverage collection in Fallout.
+- `AbsoluteUriAttribute` now rejects implicit file paths such as `/docs/intro.html` consistently across operating systems.
 
 ## v2.5.2:
 - Dropped support for `net7.0` and added a dedicated target for `net9.0` in **Dangl.Data.Shared.AspNetCore**

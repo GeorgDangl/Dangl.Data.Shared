@@ -4,7 +4,6 @@ using Fallout.Common.IO;
 using Fallout.Common.ProjectModel;
 using Fallout.Common.Tooling;
 using Fallout.Common.Tools.AzureKeyVault;
-using Fallout.Common.Tools.Coverlet;
 using Fallout.Common.Tools.DotNet;
 using Fallout.Common.Tools.GitVersion;
 using Fallout.Common.Tools.ReportGenerator;
@@ -113,20 +112,18 @@ class Build : FalloutBuild
         .Executes(() =>
         {
             var testProjects = (SolutionDirectory / "test").GlobFiles("**/*.csproj");
-            var testRun = 1;
-
             try
             {
                 DotNetTest(x => x
-                    .AddProcessAdditionalArguments("/nodeReuse:false")
+                    .SetConfiguration(Configuration)
                     .SetNoBuild(true)
-                    .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects
                         .SelectMany(testProject => GetTestFrameworksForProjectFile(testProject)
                             .Select(targetFramework => cc
+                                .SetProjectFile(testProject)
                                 .SetFramework(targetFramework)
                                 .SetProcessWorkingDirectory(Path.GetDirectoryName(testProject))
-                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / $"{testRun++}_testresults-{targetFramework}.xml"}")))),
+                                .AddProcessAdditionalArguments($"-- --report-spekt-xunit --report-spekt-xunit-filename \"{OutputDirectory / $"{Path.GetFileNameWithoutExtension(testProject)}_testresults-{targetFramework}.xml"}\"")))),
                                 degreeOfParallelism: Environment.ProcessorCount);
             }
             finally
@@ -151,54 +148,36 @@ class Build : FalloutBuild
         {
             var testProjects = (SolutionDirectory / "test").GlobFiles("**/*.csproj").ToList();
 
-            var hasFailedTests = false;
             try
             {
                 DotNetTest(c => c
+                    .SetConfiguration(Configuration)
                     .EnableNoBuild()
-                    .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects
                         .SelectMany(testProject =>
                         {
-                            var projectDirectory = Path.GetDirectoryName(testProject);
                             var projectName = Path.GetFileNameWithoutExtension(testProject);
                             var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
                             return targetFrameworks.Select(targetFramework => cc
-                                // Coverage data is only collected for .NET Core or .NET 5 and newer
-                                .When(!targetFramework.StartsWith("net4"), ccc => ccc
-                                    .EnableCollectCoverage()
-                                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
-                                    .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
-                                    .AddProcessAdditionalArguments($"/p:Include=[Dangl.Data.Shared*]*")
-                                    .AddProcessAdditionalArguments($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
-                                    // This is required for the .NET Framework tests, otherwise strong named assemblies would not be correctly
-                                    // found since Coverlet changes them in order to be able to generate a coverage result
-                                    .AddProcessAdditionalArguments("-- RunConfiguration.DisableAppDomain=true"))
                                 .SetProjectFile(testProject)
                                 .SetFramework(targetFramework)
-                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml"));
+                                .SetResultsDirectory(OutputDirectory / projectName / targetFramework)
+                                .AddProcessAdditionalArguments("--coverlet --coverlet-output-format cobertura --coverlet-include [Dangl.Data.Shared*]* --coverlet-exclude-by-attribute Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute")
+                                .AddProcessAdditionalArguments($"-- --report-spekt-xunit --report-spekt-xunit-filename \"{OutputDirectory / $"{projectName}_testresults-{targetFramework}.xml"}\""));
                         })),
                             degreeOfParallelism: Environment.ProcessorCount,
                             completeOnFailure: true);
             }
-            catch
+            finally
             {
-                hasFailedTests = true;
-            }
+                PrependFrameworkToTestresults();
 
-            PrependFrameworkToTestresults();
-
-            // Merge coverage reports, otherwise they might not be completely
-            // picked up by Jenkins
-            ReportGenerator(c => c
-                .SetFramework("net6.0")
-                .SetReports(OutputDirectory / "*_coverage*.xml")
-                .SetTargetDirectory(OutputDirectory)
-                .SetReportTypes(ReportTypes.Cobertura));
-
-            if (hasFailedTests)
-            {
-                Assert.Fail("Some tests have failed");
+                // Jenkins consumes a single coverage report for all projects and frameworks.
+                ReportGenerator(c => c
+                    .SetFramework("net10.0")
+                    .SetReports(OutputDirectory / "**/*cobertura*.xml")
+                    .SetTargetDirectory(OutputDirectory)
+                    .SetReportTypes(ReportTypes.Cobertura));
             }
         });
 
@@ -319,6 +298,7 @@ class Build : FalloutBuild
     private void PrependFrameworkToTestresults()
     {
         var testResults = OutputDirectory.GlobFiles("*testresults*.xml").ToList();
+        Assert.NotEmpty(testResults, "No xUnit test result files were generated.");
         foreach (var testResultFile in testResults)
         {
             var frameworkName = GetFrameworkNameFromFilename(testResultFile);

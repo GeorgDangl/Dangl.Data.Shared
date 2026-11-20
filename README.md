@@ -268,7 +268,9 @@ security or provide tamper-proof binaries, as the key is available in the source
 
 ## Build and Markdown documentation
 
-Build automation uses [Fallout](https://github.com/GeorgDangl/Fallout) with the .NET 10 SDK or newer. The bootstrap scripts use `.fallout` configuration and install .NET 10 when a compatible SDK is unavailable.
+Build automation uses [Fallout](https://github.com/GeorgDangl/Fallout) with the .NET 11 SDK. The bootstrap scripts use `.fallout` configuration and install .NET 11 when a compatible SDK is unavailable. Install the .NET 10 and .NET 11 ASP.NET Core runtimes to run the full test matrix.
+
+All three test projects target `net11.0` and `net10.0`, using xUnit.v3 with Microsoft.Testing.Platform. The older .NET and .NET Framework test targets have been retired; the library package target frameworks are unchanged. Run `./build.sh Test` (or `.\build.ps1 Test` on Windows) to build and test both frameworks. `Coverage` additionally collects coverage with `coverlet.MTP`. Both targets produce merged xUnit results at `output/testresults.xml`; `Coverage` also produces `output/Cobertura.xml` for Jenkins.
 
 `BuildDocumentation` generates the HTML site in `output/docs` and native DocFX Markdown API documentation, articles and assets in `output/docs-markdown`, with an adjacent ZIP archive. Start at `index.md`; API reference directories follow the HTML documentation's project scopes.
 
